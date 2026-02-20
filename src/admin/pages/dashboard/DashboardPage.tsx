@@ -84,14 +84,6 @@ export const DashboardPage = () => {
           <MetricChart />
         </div>
       </div>
-
-      {/* Charts and Activity Section */}
-      {/* <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
-        <div className="lg:col-span-2 space-y-6">
-          <Chart title="Traffic Sources" data={chartData} />
-          <Chart title="Performance Metrics" data={performanceData} />
-        </div>
-      </div> */}
     </>
   );
 };
