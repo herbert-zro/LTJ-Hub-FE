@@ -79,7 +79,7 @@ export const DashboardPage = () => {
         ))}
       </div>
 
-      <div className="min-h-screen bg-background flex items-start justify-center px-4 py-10">
+      <div className="bg-background flex items-start justify-center px-4 py-10">
         <div className="w-full max-w-5xl">
           <MetricChart />
         </div>

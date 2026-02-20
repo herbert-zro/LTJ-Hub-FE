@@ -146,14 +146,14 @@ export const MetricChart: FC<ComparativaChartProps> = ({
         <h2 className="chart-title text-center">
           Comparativa de Pruebas Enviadas
         </h2>
-        <div className="chart-controls">
-          <div className="date-input-wrapper">
+        <div className="chart-controls flex w-full justify-end">
+          <div className="date-input-wrapper w-full md:w-1/4">
             <Input
               type="date"
               value={date}
               onChange={(e) => setDate(e.target.value)}
               placeholder="Selecciona una fecha"
-              className="date-input"
+              className="date-input w-full"
             />
             {/* <Calendar className="date-icon" size={16} /> */}
           </div>
