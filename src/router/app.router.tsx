@@ -1,7 +1,6 @@
 import { createBrowserRouter } from "react-router";
 import { DashboardPage } from "../admin/pages/dashboard/DashboardPage";
 import { LoginPage } from "../auth/pages/login/LoginPage";
-import { RegisterPage } from "../auth/pages/register/RegisterPage";
 import { lazy } from "react";
 
 const AuthLayout = lazy(() => import("../auth/layout/AuthLayout"));
@@ -10,12 +9,9 @@ const AdminLayout = lazy(() => import("../admin/layout/AdminLayout"));
 export const appRouter = createBrowserRouter([
   // Auth routes
   {
-    path: "/",
+    path: "/auth",
     element: <AuthLayout />,
-    children: [
-      { index: true, element: <LoginPage /> },
-      { path: "register", element: <RegisterPage /> },
-    ],
+    children: [{ index: true, element: <LoginPage /> }],
   },
 
   // Admin routes
