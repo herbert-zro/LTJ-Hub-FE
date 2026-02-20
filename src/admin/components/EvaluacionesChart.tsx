@@ -2,10 +2,10 @@ import React from "react";
 
 interface ChartProps {
   title: string;
-  data: { label: string; value: number }[];
+  data: { label: string; value: number; color: string }[];
 }
 
-export const Chart: React.FC<ChartProps> = ({ title, data }) => {
+export const EvaluacionesChart: React.FC<ChartProps> = ({ title, data }) => {
   const maxValue = Math.max(...data.map((d) => d.value));
 
   return (
@@ -19,7 +19,7 @@ export const Chart: React.FC<ChartProps> = ({ title, data }) => {
             </div>
             <div className="flex-1 bg-gray-200 rounded-full h-3">
               <div
-                className="bg-gradient-to-r from-blue-500 to-blue-600 h-3 rounded-full transition-all duration-1000 ease-out"
+                className={`bg-gradient-to-r ${item.color} h-3 rounded-full transition-all duration-1000 ease-out`}
                 style={{ width: `${(item.value / maxValue) * 100}%` }}
               ></div>
             </div>

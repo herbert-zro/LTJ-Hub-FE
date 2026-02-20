@@ -1,4 +1,5 @@
 import { AdminTitle } from "@/admin/components/AdminTitle";
+import { EvaluacionesChart } from "@/admin/components/EvaluacionesChart";
 import { MetricChart } from "@/admin/components/MetricChart";
 
 import StatCard from "@/admin/components/StatCard";
@@ -44,24 +45,23 @@ const stats = [
   },
 ];
 
-/* const chartData = [
-  { label: "Desktop", value: 65 },
-  { label: "Mobile", value: 28 },
-  { label: "Tablet", value: 7 },
-]; */
-
-/* const chartData = [
-  { label: "Organic", value: 120 },
-  { label: "Social", value: 80 },
-  { label: "Paid", value: 40 },
-];
-
 const performanceData = [
-  { label: "Page Views", value: 24567 },
-  { label: "Sessions", value: 18234 },
-  { label: "Users", value: 12847 },
-  { label: "Bounce Rate", value: 23 },
-]; */
+  {
+    label: "Evaluaciones Completadas",
+    value: 24567,
+    color: "from-emerald-500 to-emerald-600",
+  },
+  {
+    label: "Evaluaciones en Proceso",
+    value: 18234,
+    color: "from-violet-500 to-violet-700",
+  },
+  {
+    label: "Evaluaciones Pendientes",
+    value: 12847,
+    color: "from-rose-500 to-rose-600",
+  },
+];
 
 export const DashboardPage = () => {
   return (
@@ -79,10 +79,17 @@ export const DashboardPage = () => {
         ))}
       </div>
 
-      <div className="bg-background flex items-start justify-center px-4 py-10">
+      <div className="flex items-start justify-center mb-8">
         <div className="w-full max-w-5xl">
           <MetricChart />
         </div>
+      </div>
+
+      <div className="grid grid-cols-2">
+        <EvaluacionesChart
+          title="Evaluaciones por Departamento"
+          data={performanceData}
+        />
       </div>
     </>
   );
