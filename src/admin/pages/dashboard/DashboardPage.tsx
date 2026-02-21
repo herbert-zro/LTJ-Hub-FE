@@ -1,6 +1,13 @@
 import { AdminTitle } from "@/admin/components/AdminTitle";
 import { EvaluacionesChart } from "@/admin/components/EvaluacionesChart";
 import { MetricChart } from "@/admin/components/MetricChart";
+import {
+  Carousel,
+  CarouselContent,
+  CarouselItem,
+  CarouselNext,
+  CarouselPrevious,
+} from "@/components/ui/carousel";
 
 import StatCard from "@/admin/components/StatCard";
 import {
@@ -73,14 +80,29 @@ export const DashboardPage = () => {
       />
 
       {/* Stats Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+      {/* Stats (Mobile) */}
+      <div className="mb-8 md:hidden">
+        <Carousel className="w-full">
+          <CarouselContent className="-ml-2">
+            {stats.map((stat, index) => (
+              <CarouselItem key={index} className="basis-[85%] pl-2">
+                <StatCard {...stat} />
+              </CarouselItem>
+            ))}
+          </CarouselContent>
+          <CarouselPrevious />
+          <CarouselNext />
+        </Carousel>
+      </div>
+      {/* Stats (Desktop) */}
+      <div className="hidden md:grid grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
         {stats.map((stat, index) => (
           <StatCard key={index} {...stat} />
         ))}
       </div>
 
       <div className="flex items-start justify-center mb-8">
-        <div className="w-full max-w-5xl">
+        <div className="w-full ">
           <MetricChart />
         </div>
       </div>

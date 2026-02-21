@@ -51,7 +51,7 @@ export const NavContent = ({
         </ul>
       </nav>
 
-      {!collapsed && (
+      {/* {!collapsed && (
         <div className="p-4 border-t border-gray-200">
           <div className="flex items-center space-x-3 p-3 rounded-lg hover:bg-gray-50 transition-colors cursor-pointer">
             <div className="w-10 h-10 bg-linear-to-br from-blue-500 to-purple-600 rounded-full flex items-center justify-center text-white font-semibold">
@@ -65,7 +65,7 @@ export const NavContent = ({
             </div>
           </div>
         </div>
-      )}
+      )} */}
     </>
   );
 };
