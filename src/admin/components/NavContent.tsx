@@ -25,16 +25,24 @@ export const NavContent = ({
             const LinkContent = (
               <a
                 href="#"
-                className={`flex items-center space-x-3 px-3 py-2 rounded-lg transition-all duration-200 group ${
+                className={`flex items-center px-3 py-2 rounded-lg transition-all duration-300 group ${
+                  collapsed ? "justify-center" : "gap-3"
+                } ${
                   item.active
                     ? "bg-blue-50 text-blue-600 border-r-2 border-blue-600"
                     : "text-gray-600 hover:bg-gray-50 hover:text-gray-900"
                 }`}
               >
                 <Icon size={20} className="shrink-0" />
-                {!collapsed && (
-                  <span className="font-medium">{item.label}</span>
-                )}
+                <span
+                  className={`font-medium whitespace-nowrap overflow-hidden transition-all ${
+                    collapsed
+                      ? "max-w-0 opacity-0 -translate-x-1 duration-200 ease-in"
+                      : "max-w-55 opacity-100 translate-x-0 duration-300 ease-out"
+                  }`}
+                >
+                  {item.label}
+                </span>
               </a>
             );
 
