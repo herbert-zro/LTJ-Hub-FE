@@ -1,5 +1,10 @@
-import { Building2, LayoutDashboard, UserRound, Users } from "lucide-react";
-import { SheetClose } from "@/components/ui/sheet";
+import { ChevronDown } from "lucide-react";
+import { cn } from "@/lib/utils";
+import { CustomMenu } from "./custom/CustomMenu";
+import { useLocation } from "react-router";
+import { adminNavItems } from "@/admin/navigation/types/nav-items";
+import { useAdminSubmenu } from "@/admin/navigation/hooks/useAdminSubmenu";
+import { NavItemButton, NavItemLink } from "@/admin/navigation/components";
 
 export const NavContent = ({
   collapsed,
@@ -8,72 +13,74 @@ export const NavContent = ({
   collapsed: boolean;
   isMobile?: boolean;
 }) => {
-  const menuItems = [
-    { icon: LayoutDashboard, label: "Administración", active: true },
-    { icon: Building2, label: "Empresas" },
-    { icon: Users, label: "Grupos" },
-    { icon: UserRound, label: "Candidatos" },
-  ];
+  const { pathname } = useLocation();
+  const { isOpen: isAdminSubmenuOpen, toggle: toggleAdminSubmenu } =
+    useAdminSubmenu({
+      collapsed,
+      isMobile,
+      pathname,
+    });
 
   return (
     <>
       <nav className="flex-1 p-4">
         <ul className="space-y-2">
-          {menuItems.map((item, index) => {
-            const Icon = item.icon;
+          {adminNavItems.map((item, index) => {
+            const isAdminItem = item.isExpandable && item.children?.length;
+            const isActive =
+              item.to && item.to !== "#"
+                ? pathname === item.to || pathname.startsWith(`${item.to}/`)
+                : false;
 
-            const LinkContent = (
-              <a
-                href="#"
-                className={`flex items-center px-3 py-2 rounded-lg transition-all duration-300 group ${
-                  collapsed ? "justify-center" : "gap-3"
-                } ${
-                  item.active
-                    ? "bg-blue-50 text-blue-600 border-r-2 border-blue-600"
-                    : "text-gray-600 hover:bg-gray-50 hover:text-gray-900"
-                }`}
-              >
-                <Icon size={20} className="shrink-0" />
-                <span
-                  className={`font-medium whitespace-nowrap overflow-hidden transition-all ${
-                    collapsed
-                      ? "max-w-0 opacity-0 -translate-x-1 duration-200 ease-in"
-                      : "max-w-55 opacity-100 translate-x-0 duration-300 ease-out"
-                  }`}
-                >
-                  {item.label}
-                </span>
-              </a>
-            );
+            if (isAdminItem) {
+              return (
+                <li key={index}>
+                  <NavItemButton
+                    collapsed={collapsed}
+                    active={isActive}
+                    onClick={toggleAdminSubmenu}
+                    label={item.label}
+                    icon={item.icon}
+                    rightSlot={
+                      <ChevronDown
+                        size={16}
+                        className={cn(
+                          "ml-auto shrink-0 transition-transform duration-200",
+                          isAdminSubmenuOpen && "rotate-180",
+                        )}
+                      />
+                    }
+                  />
+
+                  {!collapsed && isAdminSubmenuOpen && (
+                    <div className="mt-2 pl-6">
+                      <CustomMenu
+                        items={item.children ?? []}
+                        isMobile={Boolean(isMobile)}
+                      />
+                    </div>
+                  )}
+                </li>
+              );
+            }
 
             return (
               <li key={index}>
-                {isMobile ? (
-                  <SheetClose asChild>{LinkContent}</SheetClose>
-                ) : (
-                  LinkContent
-                )}
+                <NavItemLink
+                  collapsed={collapsed}
+                  active={isActive}
+                  to={item.to ?? "#"}
+                  label={item.label}
+                  icon={item.icon}
+                  closeOnMobile={
+                    Boolean(isMobile) && Boolean(item.requiresCloseOnMobile)
+                  }
+                />
               </li>
             );
           })}
         </ul>
       </nav>
-
-      {/* {!collapsed && (
-        <div className="p-4 border-t border-gray-200">
-          <div className="flex items-center space-x-3 p-3 rounded-lg hover:bg-gray-50 transition-colors cursor-pointer">
-            <div className="w-10 h-10 bg-linear-to-br from-blue-500 to-purple-600 rounded-full flex items-center justify-center text-white font-semibold">
-              JD
-            </div>
-            <div className="flex-1 min-w-0">
-              <p className="text-sm font-medium text-gray-900 truncate">
-                John Doe
-              </p>
-              <p className="text-xs text-gray-500 truncate">john@company.com</p>
-            </div>
-          </div>
-        </div>
-      )} */}
     </>
   );
 };

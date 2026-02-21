@@ -14,7 +14,7 @@ export const AdminSidebar: React.FC<SidebarProps> = ({
   return (
     <div
       className={`hidden md:flex bg-white border-r border-gray-200 transition-all duration-400 ease-in-out ${
-        isCollapsed ? "w-18" : "w-50"
+        isCollapsed ? "w-18" : "w-57"
       } flex-col`}
     >
       <HeaderBlock

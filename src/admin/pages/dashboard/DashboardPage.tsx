@@ -16,7 +16,6 @@ import {
   ClipboardCheck,
   Clock3,
 } from "lucide-react";
-import { CustomMenu } from "@/admin/components/custom/CustomMenu";
 
 const stats = [
   {
@@ -75,7 +74,6 @@ export const DashboardPage = () => {
   return (
     <>
       {/* Welcome Section */}
-      <CustomMenu />
       <AdminTitle
         title="Dashboard"
         subtitle="Bienvenido al panel de administración."
