@@ -31,7 +31,7 @@ export const DataTable = <T,>({
   };
 
   return (
-    <div className="rounded-xl border bg-white">
+    <div className="rounded-xl border bg-white mb-4">
       <Table>
         <TableHeader>
           <TableRow>

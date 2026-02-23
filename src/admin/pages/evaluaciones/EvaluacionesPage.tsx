@@ -1,11 +1,13 @@
 import { useCallback, useMemo } from "react";
-import { Pencil } from "lucide-react";
+import { Pencil, Search } from "lucide-react";
 
 import { AdminTitle } from "@/admin/components/AdminTitle";
 import { DataTable } from "@/admin/components/data-table/DataTable";
 import type { ColumnDefinition } from "@/admin/components/data-table/types/column-types";
 import { Button } from "@/components/ui/button";
 import type { EvaluacionRow } from "./types/evaluationes-types";
+import { Searchbar } from "@/admin/components/Searchbar";
+import { CustomPagination } from "@/admin/components/custom/CustomPagination";
 
 const EVALUACIONES_DATA: EvaluacionRow[] = [
   { id: 1, nombre: "TCG", tipo: 1, indicador: null },
@@ -81,13 +83,14 @@ export const EvaluacionesPage = () => {
         title="Evaluaciones"
         subtitle="Consulta y administra las evaluaciones disponibles."
       />
-
+      <Searchbar />
       <DataTable
         data={EVALUACIONES_DATA}
         columns={columns}
         getRowId={(row) => row.id}
         emptyMessage="No hay evaluaciones registradas"
       />
+      <CustomPagination totalPages={5} />
     </section>
   );
 };
