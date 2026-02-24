@@ -8,6 +8,10 @@ import { EvaluacionesPage } from "@/admin/pages/evaluaciones/EvaluacionesPage";
 import { FactorRangoPage } from "@/admin/pages/factor-rango/FactorRangoPage";
 import { UsuariosPage } from "@/admin/pages/usuarios/UsuariosPage";
 import { UserFormPage } from "@/admin/pages/usuarios/UserFormPage";
+import { FactorRangoFormPage } from "@/admin/pages/factor-rango/FactorRangoFormPage";
+import { EvaluacionesFormPage } from "@/admin/pages/evaluaciones/EvaluacionesFormPage";
+import { CorreoFormPage } from "@/admin/pages/correo/CorreoFormPage";
+import { BitacoraFormPage } from "@/admin/pages/bitacora/BitacoraFormPage";
 
 const AuthLayout = lazy(() => import("../auth/layout/AuthLayout"));
 const AdminLayout = lazy(() => import("../admin/layout/AdminLayout"));
@@ -33,10 +37,34 @@ export const appRouter = createBrowserRouter([
           { path: "form", element: <UserFormPage /> },
         ],
       },
-      { path: "factor-rango", element: <FactorRangoPage /> },
-      { path: "evaluaciones", element: <EvaluacionesPage /> },
-      { path: "correo", element: <CorreoPage /> },
-      { path: "bitacora", element: <BitacoraPage /> },
+      {
+        path: "factor-rango",
+        children: [
+          { index: true, element: <FactorRangoPage /> },
+          { path: "form", element: <FactorRangoFormPage /> },
+        ],
+      },
+      {
+        path: "evaluaciones",
+        children: [
+          { index: true, element: <EvaluacionesPage /> },
+          { path: "form", element: <EvaluacionesFormPage /> },
+        ],
+      },
+      {
+        path: "correo",
+        children: [
+          { index: true, element: <CorreoPage /> },
+          { path: "form", element: <CorreoFormPage /> },
+        ],
+      },
+      {
+        path: "bitacora",
+        children: [
+          { index: true, element: <BitacoraPage /> },
+          { path: "form", element: <BitacoraFormPage /> },
+        ],
+      },
     ],
   },
 ]);

@@ -1,5 +1,5 @@
 import { useCallback, useMemo, useState } from "react";
-import { Pencil, UserPlus } from "lucide-react";
+import { ListPlus, Pencil } from "lucide-react";
 import { Link } from "react-router";
 
 import { AdminTitle } from "@/admin/components/AdminTitle";
@@ -208,14 +208,7 @@ export const FactorRangoPage = () => {
     }
 
     return FACTOR_RANGO_DATA.filter((row) => {
-      return (
-        row.id.toString().includes(query) ||
-        row.tipoDeEvaluacion.toLowerCase().includes(query) ||
-        row.factor.toLowerCase().includes(query) ||
-        row.percentil.toLowerCase().includes(query) ||
-        row.estado.toLowerCase().includes(query) ||
-        row.descripcion.toLowerCase().includes(query)
-      );
+      return row.tipoDeEvaluacion.toLowerCase().includes(query);
     });
   }, [searchTerm]);
 
@@ -286,7 +279,7 @@ export const FactorRangoPage = () => {
           className="gap-2 border border-emerald-700/40 bg-emerald-600 px-4 text-white shadow-sm transition-all hover:-translate-y-0.5 hover:bg-emerald-700 hover:shadow-md focus-visible:ring-emerald-300"
         >
           <Link to="form">
-            <UserPlus className="h-4 w-4" />
+            <ListPlus className="h-4 w-4" />
             Agregar factor rango
           </Link>
         </Button>
@@ -295,7 +288,7 @@ export const FactorRangoPage = () => {
         value={searchTerm}
         onChange={setSearchTerm}
         inputId="buscar-factor-rango"
-        placeholder="Buscar factor rango..."
+        placeholder="Buscar por tipo de evaluación..."
       />
       <DataTable
         data={filteredData}
