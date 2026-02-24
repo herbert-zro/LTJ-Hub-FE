@@ -7,6 +7,7 @@ import { CorreoPage } from "@/admin/pages/correo/CorreoPage";
 import { EvaluacionesPage } from "@/admin/pages/evaluaciones/EvaluacionesPage";
 import { FactorRangoPage } from "@/admin/pages/factor-rango/FactorRangoPage";
 import { UsuariosPage } from "@/admin/pages/usuarios/UsuariosPage";
+import { UserFormPage } from "@/admin/pages/usuarios/UserFormPage";
 
 const AuthLayout = lazy(() => import("../auth/layout/AuthLayout"));
 const AdminLayout = lazy(() => import("../admin/layout/AdminLayout"));
@@ -25,7 +26,13 @@ export const appRouter = createBrowserRouter([
     element: <AdminLayout />,
     children: [
       { index: true, element: <DashboardPage /> },
-      { path: "usuarios", element: <UsuariosPage /> },
+      {
+        path: "usuarios",
+        children: [
+          { index: true, element: <UsuariosPage /> },
+          { path: "form", element: <UserFormPage /> },
+        ],
+      },
       { path: "factor-rango", element: <FactorRangoPage /> },
       { path: "evaluaciones", element: <EvaluacionesPage /> },
       { path: "correo", element: <CorreoPage /> },

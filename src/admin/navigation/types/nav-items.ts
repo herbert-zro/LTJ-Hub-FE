@@ -37,6 +37,11 @@ export const adminNavItems: AdminNavItem[] = [
         to: "/admin/correo",
         requiresCloseOnMobile: true,
       },
+      {
+        label: "Bitácora",
+        to: "/admin/bitacora",
+        requiresCloseOnMobile: true,
+      },
     ],
   },
   {

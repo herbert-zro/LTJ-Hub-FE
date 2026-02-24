@@ -1,5 +1,6 @@
 import { useCallback, useMemo } from "react";
-import { Pencil, Search } from "lucide-react";
+import { Pencil, UserPlus } from "lucide-react";
+import { Link } from "react-router";
 
 import { AdminTitle } from "@/admin/components/AdminTitle";
 import { DataTable } from "@/admin/components/data-table/DataTable";
@@ -79,10 +80,23 @@ export const EvaluacionesPage = () => {
 
   return (
     <section>
-      <AdminTitle
-        title="Evaluaciones"
-        subtitle="Consulta y administra las evaluaciones disponibles."
-      />
+      <div className="mb-2 flex items-center justify-between">
+        <AdminTitle
+          title="Evaluaciones"
+          subtitle="Consulta y administra las evaluaciones disponibles."
+        />
+
+        <Button
+          asChild
+          size="sm"
+          className="gap-2 border border-emerald-700/40 bg-emerald-600 px-4 text-white shadow-sm transition-all hover:-translate-y-0.5 hover:bg-emerald-700 hover:shadow-md focus-visible:ring-emerald-300"
+        >
+          <Link to="form">
+            <UserPlus className="h-4 w-4" />
+            Agregar evaluación
+          </Link>
+        </Button>
+      </div>
       <Searchbar />
       <DataTable
         data={EVALUACIONES_DATA}
