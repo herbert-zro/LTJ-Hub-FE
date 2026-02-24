@@ -1,13 +1,14 @@
-import { useCallback, useMemo } from "react";
-import { ClipboardPlus, Pencil } from "lucide-react";
+import { useCallback, useMemo, useState } from "react";
+import { ClipboardPlus, Pencil, Trash2 } from "lucide-react";
 import { Link } from "react-router";
 
 import { AdminTitle } from "@/admin/components/AdminTitle";
+import { ModalCancelar } from "@/admin/components/ModalCancelar";
 import { DataTable } from "@/admin/components/data-table/DataTable";
 import type { ColumnDefinition } from "@/admin/components/data-table/types/column-types";
 import { Button } from "@/components/ui/button";
 import type { EvaluacionRow } from "./types/evaluationes-types";
-import { Searchbar } from "@/admin/components/Searchbar";
+import { TableToolbar } from "@/admin/components/TableToolbar";
 import { CustomPagination } from "@/admin/components/custom/CustomPagination";
 
 const EVALUACIONES_DATA: EvaluacionRow[] = [
@@ -28,8 +29,27 @@ const formatTipo = (tipo: number) => {
 };
 
 export const EvaluacionesPage = () => {
+  const [deleteTargetId, setDeleteTargetId] = useState<number | null>(null);
+
   const handleEdit = useCallback((id: number) => {
     console.log("edit", id);
+  }, []);
+
+  const handleDelete = useCallback((id: number) => {
+    setDeleteTargetId(id);
+  }, []);
+
+  const handleConfirmDelete = useCallback(() => {
+    if (deleteTargetId === null) {
+      return;
+    }
+
+    console.log("delete", deleteTargetId);
+    setDeleteTargetId(null);
+  }, [deleteTargetId]);
+
+  const handleCloseDeleteModal = useCallback(() => {
+    setDeleteTargetId(null);
   }, []);
 
   const columns = useMemo<ColumnDefinition<EvaluacionRow>[]>(
@@ -60,9 +80,9 @@ export const EvaluacionesPage = () => {
       {
         key: "actions",
         header: "",
-        className: "w-[120px] text-right",
+        className: "w-[96px]",
         cell: (row) => (
-          <div className="flex justify-end">
+          <div className="flex justify-around">
             <Button
               variant="ghost"
               size="icon"
@@ -71,16 +91,24 @@ export const EvaluacionesPage = () => {
             >
               <Pencil className="h-4 w-4" />
             </Button>
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={() => handleDelete(row.id)}
+              aria-label={`Eliminar evaluación ${row.nombre}`}
+            >
+              <Trash2 className="h-4 w-4" />
+            </Button>
           </div>
         ),
       },
     ],
-    [handleEdit],
+    [handleDelete, handleEdit],
   );
 
   return (
     <section>
-      <div className="mb-2 flex items-center justify-between">
+      <div className="mb-4 flex flex-col gap-4 rounded-xl border bg-white p-4 sm:flex-row sm:items-start sm:justify-between md:items-center">
         <AdminTitle
           title="Evaluaciones"
           subtitle="Consulta y administra las evaluaciones disponibles."
@@ -89,22 +117,32 @@ export const EvaluacionesPage = () => {
         <Button
           asChild
           size="sm"
-          className="gap-2 border border-emerald-700/40 bg-emerald-600 px-4 text-white shadow-sm transition-all hover:-translate-y-0.5 hover:bg-emerald-700 hover:shadow-md focus-visible:ring-emerald-300"
+          className="w-full gap-2 border border-emerald-700/40 bg-emerald-600 px-4 text-white shadow-sm transition-all hover:-translate-y-0.5 hover:bg-emerald-700 hover:shadow-md focus-visible:ring-emerald-300 sm:w-auto"
         >
-          <Link to="form">
+          <Link to="form" className="flex items-center justify-center gap-2">
             <ClipboardPlus className="h-4 w-4" />
             Agregar evaluación
           </Link>
         </Button>
       </div>
-      <Searchbar />
+      <TableToolbar />
       <DataTable
         data={EVALUACIONES_DATA}
         columns={columns}
         getRowId={(row) => row.id}
         emptyMessage="No hay evaluaciones registradas"
       />
-      <CustomPagination totalPages={5} />
+      <CustomPagination totalPages={3} />
+
+      <ModalCancelar
+        isOpen={deleteTargetId !== null}
+        title="¿Eliminar evaluación?"
+        description="Esta acción no se puede deshacer."
+        confirmText="Sí, eliminar"
+        cancelText="Cancelar"
+        onConfirm={handleConfirmDelete}
+        onClose={handleCloseDeleteModal}
+      />
     </section>
   );
 };
