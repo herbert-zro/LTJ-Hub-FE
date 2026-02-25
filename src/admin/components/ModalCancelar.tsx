@@ -30,14 +30,17 @@ export const ModalCancelar = ({
         aria-modal="true"
         aria-labelledby="cancel-modal-title"
         aria-describedby="cancel-modal-description"
-        className="bg-background w-full max-w-md rounded-lg border p-6 shadow-lg"
+        className="w-full max-w-md rounded-lg border border-corp-gray-200 bg-surface-card p-6 shadow-lg"
       >
-        <h3 id="cancel-modal-title" className="text-lg font-semibold">
+        <h3
+          id="cancel-modal-title"
+          className="text-lg font-semibold text-text-strong"
+        >
           {title}
         </h3>
         <p
           id="cancel-modal-description"
-          className="text-muted-foreground mt-2 text-sm"
+          className="mt-2 text-sm text-corp-gray-500"
         >
           {description}
         </p>
@@ -46,14 +49,14 @@ export const ModalCancelar = ({
           <Button
             type="button"
             variant="outline"
-            className="w-full sm:w-auto"
+            className="w-full border-corp-gray-200 bg-surface-card text-corp-gray-600 hover:bg-brand-100 hover:text-brand-500 sm:w-auto"
             onClick={onClose}
           >
             {cancelText}
           </Button>
           <Button
             type="button"
-            className="w-full sm:w-auto"
+            className="w-full border border-brand-600/40 bg-brand-500 text-white hover:bg-brand-600 focus-visible:ring-brand-100 sm:w-auto"
             onClick={onConfirm}
           >
             {confirmText}

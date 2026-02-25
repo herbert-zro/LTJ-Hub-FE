@@ -15,7 +15,10 @@ export const Searchbar = ({
 }: SearchbarProps) => {
   return (
     <div className="flex w-full flex-col gap-2 sm:w-auto sm:flex-row sm:items-center sm:justify-end">
-      <label htmlFor={inputId} className="whitespace-nowrap">
+      <label
+        htmlFor={inputId}
+        className="whitespace-nowrap text-sm font-semibold text-text-strong"
+      >
         {label}
       </label>
       <input
@@ -24,7 +27,7 @@ export const Searchbar = ({
         value={value}
         onChange={(event) => onChange?.(event.target.value)}
         placeholder={placeholder}
-        className="w-full rounded-md border border-gray-300 px-4 py-2 sm:min-w-70"
+        className="w-full rounded-md border border-corp-gray-200 bg-surface-card px-4 py-2 text-text-strong placeholder:text-corp-gray-400 transition-colors hover:border-corp-gray-400 focus:border-brand-500 focus:ring-2 focus:ring-brand-100/70 focus:outline-none sm:min-w-70"
       />
     </div>
   );

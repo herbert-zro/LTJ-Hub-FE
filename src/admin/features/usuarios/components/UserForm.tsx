@@ -47,9 +47,9 @@ export const UserForm = () => {
   };
 
   return (
-    <Card className="mx-auto w-full max-w-3xl">
+    <Card className="mx-auto w-full max-w-3xl border-corp-gray-200 bg-surface-card shadow-sm">
       <CardHeader className="pb-2">
-        <CardTitle className="text-xl md:text-2xl">
+        <CardTitle className="text-xl font-bold text-text-strong md:text-2xl">
           Formulario de Usuario
         </CardTitle>
       </CardHeader>
@@ -59,24 +59,36 @@ export const UserForm = () => {
           {/* Nombre */}
           <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:gap-6">
             <div className="space-y-2">
-              <Label htmlFor="nombre">Nombre</Label>
+              <Label
+                htmlFor="nombre"
+                className="text-sm font-semibold text-text-strong"
+              >
+                Nombre
+              </Label>
               <Input
                 id="nombre"
                 placeholder="Ingrese el nombre completo"
                 value={nombre}
                 onChange={(event) => setNombre(event.target.value)}
+                className="border-corp-gray-200 bg-surface-card text-text-strong placeholder:text-corp-gray-400 hover:border-corp-gray-400 focus-visible:border-brand-500 focus-visible:ring-brand-100/70"
               />
             </div>
 
             {/* Correo */}
             <div className="space-y-2">
-              <Label htmlFor="correo">Correo</Label>
+              <Label
+                htmlFor="correo"
+                className="text-sm font-semibold text-text-strong"
+              >
+                Correo
+              </Label>
               <Input
                 id="correo"
                 type="email"
                 placeholder="ejemplo@empresa.com"
                 value={correo}
                 onChange={(event) => setCorreo(event.target.value)}
+                className="border-corp-gray-200 bg-surface-card text-text-strong placeholder:text-corp-gray-400 hover:border-corp-gray-400 focus-visible:border-brand-500 focus-visible:ring-brand-100/70"
               />
             </div>
           </div>
@@ -84,28 +96,64 @@ export const UserForm = () => {
           <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:gap-6">
             {/* Rol */}
             <div className="space-y-2">
-              <Label htmlFor="rol">Rol</Label>
+              <Label
+                htmlFor="rol"
+                className="text-sm font-semibold text-text-strong"
+              >
+                Rol
+              </Label>
               <Select value={rol} onValueChange={setRol}>
-                <SelectTrigger id="rol" className="w-full">
+                <SelectTrigger
+                  id="rol"
+                  className="w-full border-corp-gray-200 bg-surface-card text-corp-gray-600 hover:border-corp-gray-400 focus-visible:border-brand-500 focus-visible:ring-brand-100/70"
+                >
                   <SelectValue placeholder="Seleccione rol" />
                 </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="administrador">Administrador</SelectItem>
-                  <SelectItem value="usuario">Usuario</SelectItem>
+                <SelectContent className="border-corp-gray-200 bg-surface-card">
+                  <SelectItem
+                    value="administrador"
+                    className="text-corp-gray-600 focus:bg-brand-100 focus:text-brand-500"
+                  >
+                    Administrador
+                  </SelectItem>
+                  <SelectItem
+                    value="usuario"
+                    className="text-corp-gray-600 focus:bg-brand-100 focus:text-brand-500"
+                  >
+                    Usuario
+                  </SelectItem>
                 </SelectContent>
               </Select>
             </div>
 
             {/* Estado */}
             <div className="space-y-2">
-              <Label htmlFor="estado">Estado</Label>
+              <Label
+                htmlFor="estado"
+                className="text-sm font-semibold text-text-strong"
+              >
+                Estado
+              </Label>
               <Select value={estado} onValueChange={setEstado}>
-                <SelectTrigger id="estado" className="w-full">
+                <SelectTrigger
+                  id="estado"
+                  className="w-full border-corp-gray-200 bg-surface-card text-corp-gray-600 hover:border-corp-gray-400 focus-visible:border-brand-500 focus-visible:ring-brand-100/70"
+                >
                   <SelectValue placeholder="Seleccione estado" />
                 </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="activo">Activo</SelectItem>
-                  <SelectItem value="inactivo">Inactivo</SelectItem>
+                <SelectContent className="border-corp-gray-200 bg-surface-card">
+                  <SelectItem
+                    value="activo"
+                    className="text-corp-gray-600 focus:bg-brand-100 focus:text-brand-500"
+                  >
+                    Activo
+                  </SelectItem>
+                  <SelectItem
+                    value="inactivo"
+                    className="text-corp-gray-600 focus:bg-brand-100 focus:text-brand-500"
+                  >
+                    Inactivo
+                  </SelectItem>
                 </SelectContent>
               </Select>
             </div>
@@ -116,12 +164,15 @@ export const UserForm = () => {
             <Button
               type="button"
               variant="outline"
-              className="w-full md:w-auto md:min-w-32"
+              className="w-full border-corp-gray-200 bg-surface-card text-corp-gray-600 hover:bg-brand-100 hover:text-brand-500 md:min-w-32 md:w-auto"
               onClick={handleCancel}
             >
               Cancelar
             </Button>
-            <Button type="submit" className="w-full md:w-auto md:min-w-40">
+            <Button
+              type="submit"
+              className="w-full border border-brand-600/40 bg-brand-500 text-white hover:bg-brand-600 focus-visible:ring-brand-100 md:min-w-40 md:w-auto"
+            >
               Guardar
             </Button>
           </div>

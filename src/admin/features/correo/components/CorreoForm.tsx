@@ -47,9 +47,9 @@ export const CorreoForm = () => {
   };
 
   return (
-    <Card className="mx-auto w-full max-w-3xl">
+    <Card className="mx-auto w-full max-w-3xl border-corp-gray-200 bg-surface-card shadow-sm">
       <CardHeader className="pb-2">
-        <CardTitle className="text-xl md:text-2xl">
+        <CardTitle className="text-xl font-bold text-text-strong md:text-2xl">
           Formulario de Correo
         </CardTitle>
       </CardHeader>
@@ -58,7 +58,12 @@ export const CorreoForm = () => {
         <form className="space-y-6">
           <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:gap-6">
             <div className="space-y-2">
-              <Label htmlFor="id">ID</Label>
+              <Label
+                htmlFor="id"
+                className="text-sm font-semibold text-text-strong"
+              >
+                ID
+              </Label>
               <Input
                 id="id"
                 type="number"
@@ -68,52 +73,107 @@ export const CorreoForm = () => {
                   const value = event.target.value;
                   setId(value === "" ? "" : Number(value));
                 }}
+                className="border-corp-gray-200 bg-surface-card text-text-strong placeholder:text-corp-gray-400 hover:border-corp-gray-400 focus-visible:border-brand-500 focus-visible:ring-brand-100/70"
               />
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="tipo">Tipo</Label>
+              <Label
+                htmlFor="tipo"
+                className="text-sm font-semibold text-text-strong"
+              >
+                Tipo
+              </Label>
               <Input
                 id="tipo"
                 placeholder="Ingrese el tipo"
                 value={tipo}
                 onChange={(event) => setTipo(event.target.value)}
+                className="border-corp-gray-200 bg-surface-card text-text-strong placeholder:text-corp-gray-400 hover:border-corp-gray-400 focus-visible:border-brand-500 focus-visible:ring-brand-100/70"
               />
             </div>
           </div>
 
           <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:gap-6">
             <div className="space-y-2">
-              <Label htmlFor="asunto">Asunto</Label>
+              <Label
+                htmlFor="asunto"
+                className="text-sm font-semibold text-text-strong"
+              >
+                Asunto
+              </Label>
               <Input
                 id="asunto"
                 placeholder="Ingrese el asunto"
                 value={asunto}
                 onChange={(event) => setAsunto(event.target.value)}
+                className="border-corp-gray-200 bg-surface-card text-text-strong placeholder:text-corp-gray-400 hover:border-corp-gray-400 focus-visible:border-brand-500 focus-visible:ring-brand-100/70"
               />
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="empresa">Empresa</Label>
+              <Label
+                htmlFor="empresa"
+                className="text-sm font-semibold text-text-strong"
+              >
+                Empresa
+              </Label>
               <Select value={empresa} onValueChange={setEmpresa}>
-                <SelectTrigger id="empresa" className="w-full">
+                <SelectTrigger
+                  id="empresa"
+                  className="w-full border-corp-gray-200 bg-surface-card text-corp-gray-600 hover:border-corp-gray-400 focus-visible:border-brand-500 focus-visible:ring-brand-100/70"
+                >
                   <SelectValue placeholder="Seleccione empresa" />
                 </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="ltj-hub">LTJ Hub</SelectItem>
-                  <SelectItem value="super-selectos">Super Selectos</SelectItem>
-                  <SelectItem value="mr-donnut">Mr. Donnut</SelectItem>
-                  <SelectItem value="teleperformance">
+                <SelectContent className="border-corp-gray-200 bg-surface-card">
+                  <SelectItem
+                    value="ltj-hub"
+                    className="text-corp-gray-600 focus:bg-brand-100 focus:text-brand-500"
+                  >
+                    LTJ Hub
+                  </SelectItem>
+                  <SelectItem
+                    value="super-selectos"
+                    className="text-corp-gray-600 focus:bg-brand-100 focus:text-brand-500"
+                  >
+                    Super Selectos
+                  </SelectItem>
+                  <SelectItem
+                    value="mr-donnut"
+                    className="text-corp-gray-600 focus:bg-brand-100 focus:text-brand-500"
+                  >
+                    Mr. Donnut
+                  </SelectItem>
+                  <SelectItem
+                    value="teleperformance"
+                    className="text-corp-gray-600 focus:bg-brand-100 focus:text-brand-500"
+                  >
                     Teleperformance
                   </SelectItem>
-                  <SelectItem value="fgr">
+                  <SelectItem
+                    value="fgr"
+                    className="text-corp-gray-600 focus:bg-brand-100 focus:text-brand-500"
+                  >
                     Fiscalia General de la Republic
                   </SelectItem>
-                  <SelectItem value="tigo-el-salvador">
+                  <SelectItem
+                    value="tigo-el-salvador"
+                    className="text-corp-gray-600 focus:bg-brand-100 focus:text-brand-500"
+                  >
                     Tigo El Salvador
                   </SelectItem>
-                  <SelectItem value="banco-agricola">Banco Agrícola</SelectItem>
-                  <SelectItem value="grupo-q">Grupo Q</SelectItem>
+                  <SelectItem
+                    value="banco-agricola"
+                    className="text-corp-gray-600 focus:bg-brand-100 focus:text-brand-500"
+                  >
+                    Banco Agrícola
+                  </SelectItem>
+                  <SelectItem
+                    value="grupo-q"
+                    className="text-corp-gray-600 focus:bg-brand-100 focus:text-brand-500"
+                  >
+                    Grupo Q
+                  </SelectItem>
                 </SelectContent>
               </Select>
             </div>
@@ -124,12 +184,15 @@ export const CorreoForm = () => {
             <Button
               type="button"
               variant="outline"
-              className="w-full md:w-auto md:min-w-32"
+              className="w-full border-corp-gray-200 bg-surface-card text-corp-gray-600 hover:bg-brand-100 hover:text-brand-500 md:min-w-32 md:w-auto"
               onClick={handleCancel}
             >
               Cancelar
             </Button>
-            <Button type="submit" className="w-full md:w-auto md:min-w-40">
+            <Button
+              type="submit"
+              className="w-full border border-brand-600/40 bg-brand-500 text-white hover:bg-brand-600 focus-visible:ring-brand-100 md:min-w-40 md:w-auto"
+            >
               Guardar
             </Button>
           </div>

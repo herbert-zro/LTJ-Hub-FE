@@ -36,9 +36,9 @@ export const EvluacionesForm = () => {
   };
 
   return (
-    <Card className="mx-auto w-full max-w-3xl">
+    <Card className="mx-auto w-full max-w-3xl border-corp-gray-200 bg-surface-card shadow-sm">
       <CardHeader className="pb-2">
-        <CardTitle className="text-xl md:text-2xl">
+        <CardTitle className="text-xl font-bold text-text-strong md:text-2xl">
           Formulario de Evaluación
         </CardTitle>
       </CardHeader>
@@ -48,36 +48,54 @@ export const EvluacionesForm = () => {
           {/* Nombre y Tipo */}
           <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:gap-6">
             <div className="space-y-2">
-              <Label htmlFor="nombre">Nombre</Label>
+              <Label
+                htmlFor="nombre"
+                className="text-sm font-semibold text-text-strong"
+              >
+                Nombre
+              </Label>
               <Input
                 id="nombre"
                 placeholder="Ingrese el nombre de la evaluación"
                 value={nombre}
                 onChange={(event) => setNombre(event.target.value)}
+                className="border-corp-gray-200 bg-surface-card text-text-strong placeholder:text-corp-gray-400 hover:border-corp-gray-400 focus-visible:border-brand-500 focus-visible:ring-brand-100/70"
               />
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="tipo">Tipo</Label>
+              <Label
+                htmlFor="tipo"
+                className="text-sm font-semibold text-text-strong"
+              >
+                Tipo
+              </Label>
               <Input
                 id="tipo"
                 type="text"
                 placeholder="Ingrese el tipo"
                 value={tipo}
                 onChange={(event) => setTipo(event.target.value)}
+                className="border-corp-gray-200 bg-surface-card text-text-strong placeholder:text-corp-gray-400 hover:border-corp-gray-400 focus-visible:border-brand-500 focus-visible:ring-brand-100/70"
               />
             </div>
           </div>
 
           <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:gap-6">
             <div className="space-y-2">
-              <Label htmlFor="indicador">Indicador</Label>
+              <Label
+                htmlFor="indicador"
+                className="text-sm font-semibold text-text-strong"
+              >
+                Indicador
+              </Label>
               <Input
                 id="indicador"
                 type="number"
                 placeholder="Ingrese el indicador"
                 value={indicador}
                 onChange={(event) => setIndicador(event.target.value)}
+                className="border-corp-gray-200 bg-surface-card text-text-strong placeholder:text-corp-gray-400 hover:border-corp-gray-400 focus-visible:border-brand-500 focus-visible:ring-brand-100/70"
               />
             </div>
           </div>
@@ -87,12 +105,15 @@ export const EvluacionesForm = () => {
             <Button
               type="button"
               variant="outline"
-              className="w-full md:w-auto md:min-w-32"
+              className="w-full border-corp-gray-200 bg-surface-card text-corp-gray-600 hover:bg-brand-100 hover:text-brand-500 md:min-w-32 md:w-auto"
               onClick={handleCancel}
             >
               Cancelar
             </Button>
-            <Button type="submit" className="w-full md:w-auto md:min-w-40">
+            <Button
+              type="submit"
+              className="w-full border border-brand-600/40 bg-brand-500 text-white hover:bg-brand-600 focus-visible:ring-brand-100 md:min-w-40 md:w-auto"
+            >
               Guardar
             </Button>
           </div>

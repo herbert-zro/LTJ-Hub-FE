@@ -17,7 +17,7 @@ export const TableToolbar = ({
   inputId,
 }: TableToolbarProps) => {
   return (
-    <div className="mb-4 flex flex-col gap-3 rounded-xl border bg-white p-4 sm:flex-row sm:items-center sm:justify-between">
+    <div className="mb-4 flex flex-col gap-3 rounded-xl border border-corp-gray-200 bg-surface-card p-4 sm:flex-row sm:items-center sm:justify-between">
       <RowsPerPage />
       <Searchbar
         value={value}
