@@ -8,6 +8,7 @@ export interface AdminNavItem {
   children?: AdminNavItem[];
   requiresCloseOnMobile?: boolean;
   isExpandable?: boolean;
+  exactMatch?: boolean;
 }
 
 export const adminNavItems: AdminNavItem[] = [
@@ -17,6 +18,12 @@ export const adminNavItems: AdminNavItem[] = [
     to: "/admin",
     isExpandable: true,
     children: [
+      {
+        label: "Dashboard",
+        to: "/admin",
+        requiresCloseOnMobile: true,
+        exactMatch: true,
+      },
       {
         label: "Usuarios",
         to: "/admin/usuarios",

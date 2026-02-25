@@ -20,9 +20,13 @@ export const CustomMenu = ({
 }) => {
   const { pathname } = useLocation();
 
-  const isActive = (to?: string) => {
+  const isActive = (to?: string, exactMatch?: boolean) => {
     if (!to || to === "#") {
       return false;
+    }
+
+    if (exactMatch) {
+      return pathname === to;
     }
 
     return pathname === to || pathname.startsWith(`${to}/`);
@@ -33,7 +37,7 @@ export const CustomMenu = ({
       <NavigationMenuList className="relative w-full flex-col items-start justify-start gap-1 pl-4">
         <div className="bg-border pointer-events-none absolute top-1 bottom-1 left-1 w-px" />
         {items.map((item) => {
-          const itemActive = isActive(item.to);
+          const itemActive = isActive(item.to, item.exactMatch);
 
           const linkContent = (
             <NavigationMenuLink

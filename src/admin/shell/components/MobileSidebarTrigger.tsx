@@ -1,6 +1,6 @@
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { ChevronRight } from "lucide-react";
-import { NavContent } from "./NavContent";
+import { NavContent } from "../../components/NavContent";
 
 export const MobileSidebarTrigger: React.FC = () => {
   return (

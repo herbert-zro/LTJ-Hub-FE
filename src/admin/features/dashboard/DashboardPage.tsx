@@ -1,6 +1,6 @@
 import { AdminTitle } from "@/admin/components/AdminTitle";
-import { EvaluacionesChart } from "@/admin/components/EvaluacionesChart";
-import { MetricChart } from "@/admin/components/MetricChart";
+import { EvaluacionesChart } from "@/admin/features/dashboard/components/EvaluacionesChart";
+import { MetricChart } from "@/admin/features/dashboard/components/MetricChart";
 import {
   Carousel,
   CarouselContent,
@@ -9,7 +9,7 @@ import {
   CarouselPrevious,
 } from "@/components/ui/carousel";
 
-import StatCard from "@/admin/components/StatCard";
+import StatCard from "@/admin/features/dashboard/components/StatCard";
 import {
   UserRound,
   BriefcaseBusiness,
