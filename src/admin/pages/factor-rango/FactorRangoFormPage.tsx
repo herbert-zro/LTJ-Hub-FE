@@ -1,5 +1,5 @@
-import React from "react";
+import { FactorRangoForm } from "./ui/FactorRangoForm";
 
 export const FactorRangoFormPage = () => {
-  return <div>FactorRangoFormPage</div>;
+  return <FactorRangoForm />;
 };
