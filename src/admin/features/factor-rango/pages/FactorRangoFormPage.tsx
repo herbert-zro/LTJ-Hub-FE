@@ -1,4 +1,4 @@
-import { FactorRangoForm } from "./ui/FactorRangoForm";
+import { FactorRangoForm } from "../components/FactorRangoForm";
 
 export const FactorRangoFormPage = () => {
   return <FactorRangoForm />;

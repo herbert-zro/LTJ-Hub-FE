@@ -1,20 +1,20 @@
 import { createBrowserRouter } from "react-router";
-import { DashboardPage } from "@/admin/pages/dashboard/DashboardPage";
+import { DashboardPage } from "@/admin/features/dashboard/DashboardPage";
 import { LoginPage } from "@/auth/pages/login/LoginPage";
 import { lazy } from "react";
-import { BitacoraPage } from "@/admin/pages/bitacora/BitacoraPage";
-import { CorreoPage } from "@/admin/pages/correo/CorreoPage";
-import { EvaluacionesPage } from "@/admin/pages/evaluaciones/EvaluacionesPage";
-import { FactorRangoPage } from "@/admin/pages/factor-rango/FactorRangoPage";
-import { UsuariosPage } from "@/admin/pages/usuarios/UsuariosPage";
-import { UserFormPage } from "@/admin/pages/usuarios/UserFormPage";
-import { FactorRangoFormPage } from "@/admin/pages/factor-rango/FactorRangoFormPage";
-import { EvaluacionesFormPage } from "@/admin/pages/evaluaciones/EvaluacionesFormPage";
-import { CorreoFormPage } from "@/admin/pages/correo/CorreoFormPage";
-import { BitacoraFormPage } from "@/admin/pages/bitacora/BitacoraFormPage";
+import { BitacoraPage } from "@/admin/features/bitacora/pages/BitacoraPage";
+import { CorreoPage } from "@/admin/features/correo/pages/CorreoPage";
+import { EvaluacionesPage } from "@/admin/features/evaluaciones/pages/EvaluacionesPage";
+import { FactorRangoPage } from "@/admin/features/factor-rango/pages/FactorRangoPage";
+import { UsuariosPage } from "@/admin/features/usuarios/pages/UsuariosPage";
+import { UserFormPage } from "@/admin/features/usuarios/pages/UserFormPage";
+import { FactorRangoFormPage } from "@/admin/features/factor-rango/pages/FactorRangoFormPage";
+import { EvaluacionesFormPage } from "@/admin/features/evaluaciones/pages/EvaluacionesFormPage";
+import { CorreoFormPage } from "@/admin/features/correo/pages/CorreoFormPage";
+import { BitacoraFormPage } from "@/admin/features/bitacora/pages/BitacoraFormPage";
 
 const AuthLayout = lazy(() => import("@/auth/layout/AuthLayout"));
-const AdminLayout = lazy(() => import("@/admin/layout/AdminLayout"));
+const AdminLayout = lazy(() => import("@/admin/shell/layout/AdminLayout"));
 
 export const appRouter = createBrowserRouter([
   // Auth routes
