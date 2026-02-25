@@ -1,5 +1,5 @@
-import React from "react";
+import { BitacoraForm } from "./ui/BitacoraForm";
 
 export const BitacoraFormPage = () => {
-  return <div>BitacoraFormPage</div>;
+  return <BitacoraForm />;
 };
