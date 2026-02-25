@@ -1,10 +1,11 @@
 import { useCallback, useMemo, useState } from "react";
-import { ListPlus, Pencil, Trash2 } from "lucide-react";
+import { ListPlus } from "lucide-react";
 import { Link } from "react-router";
 
 import { AdminTitle } from "@/admin/components/AdminTitle";
 import { ModalCancelar } from "@/admin/components/ModalCancelar";
 import { TableToolbar } from "@/admin/components/TableToolbar";
+import { TableRowActions } from "@/admin/components/TableRowActions";
 import { CustomPagination } from "@/admin/components/custom/CustomPagination";
 import { DataTable } from "@/admin/components/data-table/DataTable";
 import type { ColumnDefinition } from "@/admin/components/data-table/types/column-types";
@@ -268,26 +269,12 @@ export const FactorRangoPage = () => {
         header: "",
         className: "w-[96px]",
         cell: (row) => (
-          <div className="flex justify-around">
-            <Button
-              variant="ghost"
-              size="icon"
-              className="text-corp-gray-500 hover:bg-brand-100 hover:text-brand-500"
-              onClick={() => handleEdit(row.id)}
-              aria-label={`Editar factor rango ${row.factor}`}
-            >
-              <Pencil className="h-4 w-4" />
-            </Button>
-            <Button
-              variant="ghost"
-              size="icon"
-              className="text-corp-gray-500 hover:bg-destructive/10 hover:text-destructive"
-              onClick={() => handleDelete(row.id)}
-              aria-label={`Eliminar factor rango ${row.factor}`}
-            >
-              <Trash2 className="h-4 w-4" />
-            </Button>
-          </div>
+          <TableRowActions
+            onEdit={() => handleEdit(row.id)}
+            onDelete={() => handleDelete(row.id)}
+            editLabel={`Editar factor rango ${row.factor}`}
+            deleteLabel={`Eliminar factor rango ${row.factor}`}
+          />
         ),
       },
     ],

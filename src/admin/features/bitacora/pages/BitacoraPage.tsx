@@ -1,15 +1,16 @@
 import { useCallback, useMemo, useState } from "react";
-import { NotebookText, Pencil, Trash2 } from "lucide-react";
+import { NotebookText } from "lucide-react";
 import { Link } from "react-router";
 
 import { AdminTitle } from "@/admin/components/AdminTitle";
 import { ModalCancelar } from "@/admin/components/ModalCancelar";
 import { TableToolbar } from "@/admin/components/TableToolbar";
+import { TableRowActions } from "@/admin/components/TableRowActions";
 import { CustomPagination } from "@/admin/components/custom/CustomPagination";
 import { DataTable } from "@/admin/components/data-table/DataTable";
 import type { ColumnDefinition } from "@/admin/components/data-table/types/column-types";
 import { Button } from "@/components/ui/button";
-import type { BitacoraRow } from "./types/bitacora-types";
+import type { BitacoraRow } from "../types/bitacora-types";
 
 const BITACORA_DATA: BitacoraRow[] = [
   {
@@ -123,26 +124,12 @@ export const BitacoraPage = () => {
         header: "",
         className: "w-[96px]",
         cell: (row) => (
-          <div className="flex justify-around">
-            <Button
-              variant="ghost"
-              size="icon"
-              className="text-corp-gray-500 hover:bg-brand-100 hover:text-brand-500"
-              onClick={() => handleEdit(row.id)}
-              aria-label={`Editar bitácora ${row.id}`}
-            >
-              <Pencil className="h-4 w-4" />
-            </Button>
-            <Button
-              variant="ghost"
-              size="icon"
-              className="text-corp-gray-500 hover:bg-destructive/10 hover:text-destructive"
-              onClick={() => handleDelete(row.id)}
-              aria-label={`Eliminar bitácora ${row.id}`}
-            >
-              <Trash2 className="h-4 w-4" />
-            </Button>
-          </div>
+          <TableRowActions
+            onEdit={() => handleEdit(row.id)}
+            onDelete={() => handleDelete(row.id)}
+            editLabel={`Editar bitácora ${row.id}`}
+            deleteLabel={`Eliminar bitácora ${row.id}`}
+          />
         ),
       },
     ],

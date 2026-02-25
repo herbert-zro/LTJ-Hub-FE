@@ -8,7 +8,12 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 
-export const RowsPerPage = () => {
+type RowsPerPageProps = {
+  value: number;
+  onChange: (value: number) => void;
+};
+
+export const RowsPerPage = ({ value, onChange }: RowsPerPageProps) => {
   return (
     <div className="flex items-center justify-between gap-4">
       <Field orientation="horizontal" className="w-fit">
@@ -16,9 +21,12 @@ export const RowsPerPage = () => {
           htmlFor="select-rows-per-page"
           className="text-sm font-semibold text-text-strong"
         >
-          Rows per page
+          Filas por página
         </FieldLabel>
-        <Select defaultValue="25">
+        <Select
+          value={String(value)}
+          onValueChange={(nextValue) => onChange(Number(nextValue))}
+        >
           <SelectTrigger
             className="w-20 border-corp-gray-200 bg-surface-card text-corp-gray-600 hover:bg-brand-100 focus-visible:border-brand-500 focus-visible:ring-brand-100/60"
             id="select-rows-per-page"
@@ -47,12 +55,6 @@ export const RowsPerPage = () => {
                 className="text-corp-gray-600 focus:bg-brand-100 focus:text-brand-500"
               >
                 50
-              </SelectItem>
-              <SelectItem
-                value="100"
-                className="text-corp-gray-600 focus:bg-brand-100 focus:text-brand-500"
-              >
-                100
               </SelectItem>
             </SelectGroup>
           </SelectContent>

@@ -1,15 +1,16 @@
 import { useCallback, useMemo, useState } from "react";
-import { Pencil, Trash2, UserPlus } from "lucide-react";
+import { UserPlus } from "lucide-react";
 import { Link } from "react-router";
 
 import { AdminTitle } from "@/admin/components/AdminTitle";
 import { ModalCancelar } from "@/admin/components/ModalCancelar";
 import { TableToolbar } from "@/admin/components/TableToolbar";
+import { TableRowActions } from "@/admin/components/TableRowActions";
 import { CustomPagination } from "@/admin/components/custom/CustomPagination";
 import { DataTable } from "@/admin/components/data-table/DataTable";
 import type { ColumnDefinition } from "@/admin/components/data-table/types/column-types";
 import { Button } from "@/components/ui/button";
-import type { CorreoRow } from "./types/correo-platilla.types";
+import type { CorreoRow } from "../types/correo-platilla.types";
 
 const CORREO_DATA: CorreoRow[] = [
   {
@@ -104,26 +105,12 @@ export const CorreoPage = () => {
         header: "",
         className: "w-[96px]",
         cell: (row) => (
-          <div className="flex justify-around">
-            <Button
-              variant="ghost"
-              size="icon"
-              className="text-corp-gray-500 hover:bg-brand-100 hover:text-brand-500"
-              onClick={() => handleEdit(row.id)}
-              aria-label={`Editar plantilla ${row.asunto}`}
-            >
-              <Pencil className="h-4 w-4" />
-            </Button>
-            <Button
-              variant="ghost"
-              size="icon"
-              className="text-corp-gray-500 hover:bg-destructive/10 hover:text-destructive"
-              onClick={() => handleDelete(row.id)}
-              aria-label={`Eliminar plantilla ${row.asunto}`}
-            >
-              <Trash2 className="h-4 w-4" />
-            </Button>
-          </div>
+          <TableRowActions
+            onEdit={() => handleEdit(row.id)}
+            onDelete={() => handleDelete(row.id)}
+            editLabel={`Editar plantilla ${row.asunto}`}
+            deleteLabel={`Eliminar plantilla ${row.asunto}`}
+          />
         ),
       },
     ],

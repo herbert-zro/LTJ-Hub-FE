@@ -1,11 +1,12 @@
 import { useCallback, useMemo, useState } from "react";
-import { ClipboardPlus, Pencil, Trash2 } from "lucide-react";
+import { ClipboardPlus } from "lucide-react";
 import { Link } from "react-router";
 
 import { AdminTitle } from "@/admin/components/AdminTitle";
 import { ModalCancelar } from "@/admin/components/ModalCancelar";
 import { DataTable } from "@/admin/components/data-table/DataTable";
 import type { ColumnDefinition } from "@/admin/components/data-table/types/column-types";
+import { TableRowActions } from "@/admin/components/TableRowActions";
 import { Button } from "@/components/ui/button";
 import type { EvaluacionRow } from "./types/evaluationes-types";
 import { TableToolbar } from "@/admin/components/TableToolbar";
@@ -82,26 +83,12 @@ export const EvaluacionesPage = () => {
         header: "",
         className: "w-[96px]",
         cell: (row) => (
-          <div className="flex justify-around">
-            <Button
-              variant="ghost"
-              size="icon"
-              className="text-corp-gray-500 hover:bg-brand-100 hover:text-brand-500"
-              onClick={() => handleEdit(row.id)}
-              aria-label={`Editar evaluación ${row.nombre}`}
-            >
-              <Pencil className="h-4 w-4" />
-            </Button>
-            <Button
-              variant="ghost"
-              size="icon"
-              className="text-corp-gray-500 hover:bg-destructive/10 hover:text-destructive"
-              onClick={() => handleDelete(row.id)}
-              aria-label={`Eliminar evaluación ${row.nombre}`}
-            >
-              <Trash2 className="h-4 w-4" />
-            </Button>
-          </div>
+          <TableRowActions
+            onEdit={() => handleEdit(row.id)}
+            onDelete={() => handleDelete(row.id)}
+            editLabel={`Editar evaluación ${row.nombre}`}
+            deleteLabel={`Eliminar evaluación ${row.nombre}`}
+          />
         ),
       },
     ],
