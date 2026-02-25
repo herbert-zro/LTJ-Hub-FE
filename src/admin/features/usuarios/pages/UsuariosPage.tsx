@@ -9,7 +9,7 @@ import type { ColumnDefinition } from "@/admin/components/data-table/types/colum
 import { TableToolbar } from "@/admin/components/TableToolbar";
 import { CustomPagination } from "@/admin/components/custom/CustomPagination";
 import { Button } from "@/components/ui/button";
-import type { UserRow } from "./types/usuarios-types";
+import type { UserRow } from "../types/usuarios-types";
 
 const USUARIOS_DATA: UserRow[] = [
   {

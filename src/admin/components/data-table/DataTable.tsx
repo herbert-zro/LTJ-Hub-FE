@@ -59,7 +59,7 @@ export const DataTable = <T,>({
                   <div className="flex-1 space-y-3">
                     {cardColumns.map((col) => (
                       <div key={col.key} className="space-y-1">
-                        <p className="text-corp-gray-500 text-xs font-medium uppercase tracking-wide">
+                        <p className="text-brand-500 text-xs font-semibold uppercase tracking-wide">
                           {col.header}
                         </p>
                         <div className="text-sm text-text-strong">
