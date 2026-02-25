@@ -26,7 +26,7 @@ export const NavItemLink = ({
         collapsed ? "justify-center" : "gap-3"
       } ${
         active
-          ? "bg-blue-50 text-blue-600 border-r-2 border-blue-600"
+          ? "bg-brand/10 text-brand border-r-2 border-brand"
           : "text-gray-600 hover:bg-gray-50 hover:text-gray-900"
       }`}
     >

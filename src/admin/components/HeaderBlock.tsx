@@ -1,4 +1,5 @@
 import { ChevronLeft, ChevronRight } from "lucide-react";
+import { AppLogo } from "@/shared/components/AppLogo";
 
 interface HeaderBlockProps {
   showTitle: boolean;
@@ -14,22 +15,17 @@ export const HeaderBlock: React.FC<HeaderBlockProps> = ({
   title = "Admin",
 }) => {
   return (
-    <div className="p-4 border-b border-gray-200 flex items-center justify-between h-18">
-      <div className="flex-1 min-w-0 overflow-hidden">
-        <h1
-          className={`text-xl font-bold text-gray-800 whitespace-nowrap transition-all ${
-            showTitle
-              ? "max-w-40 opacity-100 translate-x-0 duration-300 ease-out"
-              : "max-w-0 opacity-0 -translate-x-1 duration-200 ease-in"
-          }`}
-        >
-          {title}
-        </h1>
+    <div className="relative p-4 border-b border-gray-200 flex items-center h-18">
+      <div className="pointer-events-none absolute inset-x-0 flex justify-center min-w-0 overflow-hidden">
+        <AppLogo
+          alt={title}
+          className={showTitle ? "max-w-40 opacity-100" : "max-w-0 opacity-0"}
+        />
       </div>
 
       <button
         onClick={onClickToggle}
-        className="p-2 rounded-lg hover:bg-gray-100 transition-colors"
+        className="relative z-10 ml-auto p-2 rounded-lg hover:bg-gray-100 transition-colors"
         aria-label="Toggle sidebar"
       >
         {collapsedIcon ? <ChevronRight size={20} /> : <ChevronLeft size={20} />}

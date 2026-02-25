@@ -42,7 +42,7 @@ export const DataTable = <T,>({
     <>
       <div className="mb-4 space-y-3 md:hidden">
         {!hasData ? (
-          <div className="rounded-xl border bg-white px-4 py-10 text-center text-muted-foreground">
+          <div className="rounded-xl border border-corp-gray-200 bg-surface-page px-4 py-10 text-center text-corp-gray-500">
             {emptyMessage}
           </div>
         ) : (
@@ -53,16 +53,18 @@ export const DataTable = <T,>({
             return (
               <div
                 key={String(rowKey)}
-                className="rounded-xl border bg-white p-4 shadow-sm"
+                className="rounded-xl border border-corp-gray-200 bg-surface-card p-4 shadow-sm"
               >
                 <div className="flex items-start justify-between gap-3">
                   <div className="flex-1 space-y-3">
                     {cardColumns.map((col) => (
                       <div key={col.key} className="space-y-1">
-                        <p className="text-muted-foreground text-xs font-medium uppercase tracking-wide">
+                        <p className="text-corp-gray-500 text-xs font-medium uppercase tracking-wide">
                           {col.header}
                         </p>
-                        <div className="text-sm">{col.cell(row)}</div>
+                        <div className="text-sm text-text-strong">
+                          {col.cell(row)}
+                        </div>
                       </div>
                     ))}
                   </div>
@@ -74,6 +76,7 @@ export const DataTable = <T,>({
                         variant="ghost"
                         size="icon"
                         aria-label="Abrir acciones"
+                        className="text-corp-gray-500 hover:bg-brand-100 hover:text-brand-500"
                         onClick={() =>
                           setOpenActionsFor(isActionsOpen ? null : rowKey)
                         }
@@ -82,7 +85,7 @@ export const DataTable = <T,>({
                       </Button>
 
                       {isActionsOpen && (
-                        <div className="bg-background absolute top-10 right-0 z-20 min-w-28 rounded-md border p-1 shadow-md">
+                        <div className="absolute top-10 right-0 z-20 min-w-28 rounded-md border border-corp-gray-200 bg-surface-card p-1 shadow-md">
                           {actionsColumn.cell(row)}
                         </div>
                       )}
@@ -95,12 +98,15 @@ export const DataTable = <T,>({
         )}
       </div>
 
-      <div className="mb-4 hidden rounded-xl border bg-white md:block">
+      <div className="mb-4 hidden rounded-xl border border-corp-gray-200 bg-surface-card md:block">
         <Table>
           <TableHeader>
-            <TableRow>
+            <TableRow className="bg-surface-page hover:bg-corp-gray-100">
               {columns.map((col) => (
-                <TableHead key={col.key} className={col.className}>
+                <TableHead
+                  key={col.key}
+                  className={`${col.className ?? ""} border-b border-corp-gray-200 text-brand-500 font-semibold`}
+                >
                   {col.header}
                 </TableHead>
               ))}
@@ -112,16 +118,22 @@ export const DataTable = <T,>({
               <TableRow>
                 <TableCell
                   colSpan={columnCount}
-                  className="py-10 text-center text-muted-foreground"
+                  className="py-10 text-center text-corp-gray-500"
                 >
                   {emptyMessage}
                 </TableCell>
               </TableRow>
             ) : (
               data.map((row, index) => (
-                <TableRow key={String(resolveRowKey(row, index))}>
+                <TableRow
+                  key={String(resolveRowKey(row, index))}
+                  className="border-corp-gray-200 hover:bg-surface-page"
+                >
                   {columns.map((col) => (
-                    <TableCell key={col.key} className={col.className}>
+                    <TableCell
+                      key={col.key}
+                      className={`${col.className ?? ""} text-text-strong`}
+                    >
                       {col.cell(row)}
                     </TableCell>
                   ))}

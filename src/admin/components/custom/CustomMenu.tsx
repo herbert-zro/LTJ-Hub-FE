@@ -45,7 +45,7 @@ export const CustomMenu = ({
               className={cn(
                 "relative w-full rounded-lg px-3 py-2 text-sm font-normal text-muted-foreground transition-colors duration-150 ease-out hover:bg-accent hover:text-foreground before:absolute before:-left-2.75 before:top-1/2 before:h-6 before:w-0.5 before:-translate-y-1/2 before:rounded-full before:bg-transparent before:transition-all before:duration-150 before:ease-out",
                 itemActive &&
-                  "bg-accent text-foreground font-semibold before:w-1 before:bg-slate-400",
+                  "bg-brand/10 text-brand font-semibold before:w-1 before:bg-brand",
               )}
             >
               <Link to={item.to ?? "#"} className="block w-full">
