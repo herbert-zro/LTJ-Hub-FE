@@ -1,6 +1,6 @@
 import { createBrowserRouter } from "react-router";
-import { DashboardPage } from "../admin/pages/dashboard/DashboardPage";
-import { LoginPage } from "../auth/pages/login/LoginPage";
+import { DashboardPage } from "@/admin/pages/dashboard/DashboardPage";
+import { LoginPage } from "@/auth/pages/login/LoginPage";
 import { lazy } from "react";
 import { BitacoraPage } from "@/admin/pages/bitacora/BitacoraPage";
 import { CorreoPage } from "@/admin/pages/correo/CorreoPage";
@@ -13,8 +13,8 @@ import { EvaluacionesFormPage } from "@/admin/pages/evaluaciones/EvaluacionesFor
 import { CorreoFormPage } from "@/admin/pages/correo/CorreoFormPage";
 import { BitacoraFormPage } from "@/admin/pages/bitacora/BitacoraFormPage";
 
-const AuthLayout = lazy(() => import("../auth/layout/AuthLayout"));
-const AdminLayout = lazy(() => import("../admin/layout/AdminLayout"));
+const AuthLayout = lazy(() => import("@/auth/layout/AuthLayout"));
+const AdminLayout = lazy(() => import("@/admin/layout/AdminLayout"));
 
 export const appRouter = createBrowserRouter([
   // Auth routes
