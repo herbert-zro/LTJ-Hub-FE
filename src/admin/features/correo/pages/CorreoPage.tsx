@@ -108,6 +108,7 @@ export const CorreoPage = () => {
             <Button
               variant="ghost"
               size="icon"
+              className="text-corp-gray-500 hover:bg-brand-100 hover:text-brand-500"
               onClick={() => handleEdit(row.id)}
               aria-label={`Editar plantilla ${row.asunto}`}
             >
@@ -116,6 +117,7 @@ export const CorreoPage = () => {
             <Button
               variant="ghost"
               size="icon"
+              className="text-corp-gray-500 hover:bg-destructive/10 hover:text-destructive"
               onClick={() => handleDelete(row.id)}
               aria-label={`Eliminar plantilla ${row.asunto}`}
             >
@@ -139,7 +141,7 @@ export const CorreoPage = () => {
         <Button
           asChild
           size="sm"
-          className="w-full gap-2 border border-emerald-700/40 bg-emerald-600 px-4 text-white shadow-sm transition-all hover:-translate-y-0.5 hover:bg-emerald-700 hover:shadow-md focus-visible:ring-emerald-300 sm:w-auto"
+          className="w-full gap-2 border border-brand-600/40 bg-brand-500 px-4 text-white shadow-sm transition-all hover:-translate-y-0.5 hover:bg-brand-600 hover:shadow-md focus-visible:ring-brand-100 sm:w-auto"
         >
           <Link to="form" className="flex items-center justify-center gap-2">
             <UserPlus className="h-4 w-4" />

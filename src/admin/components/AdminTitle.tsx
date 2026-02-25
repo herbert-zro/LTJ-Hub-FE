@@ -6,8 +6,8 @@ interface Props {
 export const AdminTitle = ({ title, subtitle }: Props) => {
   return (
     <div className="mb-8">
-      <h1 className="text-2xl font-bold text-gray-900 mb-2">{title}</h1>
-      <p className="text-gray-600">{subtitle ? subtitle : ""}</p>
+      <h1 className="mb-2 text-2xl font-bold text-text-strong">{title}</h1>
+      <p className="text-corp-gray-500">{subtitle ? subtitle : ""}</p>
     </div>
   );
 };
