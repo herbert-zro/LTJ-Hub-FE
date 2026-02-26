@@ -14,6 +14,19 @@ export const NavContent = ({
   isMobile?: boolean;
 }) => {
   const { pathname } = useLocation();
+
+  const isItemActive = (to?: string, exactMatch?: boolean) => {
+    if (!to || to === "#") {
+      return false;
+    }
+
+    if (exactMatch) {
+      return pathname === to;
+    }
+
+    return pathname === to || pathname.startsWith(`${to}/`);
+  };
+
   const { isOpen: isAdminSubmenuOpen, toggle: toggleAdminSubmenu } =
     useAdminSubmenu({
       collapsed,
@@ -27,10 +40,11 @@ export const NavContent = ({
         <ul className="space-y-2">
           {adminNavItems.map((item, index) => {
             const isAdminItem = item.isExpandable && item.children?.length;
-            const isActive =
-              item.to && item.to !== "#"
-                ? pathname === item.to || pathname.startsWith(`${item.to}/`)
-                : false;
+            const isActive = isAdminItem
+              ? (item.children ?? []).some((child) =>
+                  isItemActive(child.to, child.exactMatch),
+                )
+              : isItemActive(item.to, item.exactMatch);
 
             if (isAdminItem) {
               return (

@@ -1,9 +1,11 @@
 import { useCallback, useMemo, useState } from "react";
+import { useNavigate } from "react-router";
 
 import { EMPRESAS_DATA } from "../mock/empresas.mock";
 import { filterEmpresas } from "../utils/filterEmpresas.ts";
 
 export const useEmpresas = () => {
+  const navigate = useNavigate();
   const [searchTerm, setSearchTerm] = useState("");
   const [rowsPerPage, setRowsPerPage] = useState(10);
   const [currentPage, setCurrentPage] = useState(1);
@@ -27,9 +29,12 @@ export const useEmpresas = () => {
     console.log("edit", id);
   }, []);
 
-  const handleViewDetails = useCallback((id: number) => {
-    console.log("details", id);
-  }, []);
+  const handleViewDetails = useCallback(
+    (id: number) => {
+      navigate(`/admin/empresas/${id}`);
+    },
+    [navigate],
+  );
 
   const handleDelete = useCallback((id: number) => {
     setDeleteTargetId(id);

@@ -1,5 +1,9 @@
 # TableRowActions extensible por feature
 
+## Documentación relacionada
+
+- [Feature Empresas: detalle por ID](./feature-empresas-detalle.md)
+
 ## Objetivo
 
 Permitir agregar acciones adicionales por fila sin romper los features existentes.

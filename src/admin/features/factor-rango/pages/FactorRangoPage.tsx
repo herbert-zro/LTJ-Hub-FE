@@ -10,7 +10,7 @@ import { CustomPagination } from "@/admin/components/custom/CustomPagination";
 import { DataTable } from "@/admin/components/data-table/DataTable";
 import type { ColumnDefinition } from "@/admin/components/data-table/types/column-types";
 import { Button } from "@/components/ui/button";
-import type { FactorRangoRow } from "./types/factor-rango.types";
+import type { FactorRangoRow } from "../types/factor-rango.types";
 
 const FACTOR_RANGO_DATA: FactorRangoRow[] = [
   {
