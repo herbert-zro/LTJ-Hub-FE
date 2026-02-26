@@ -1,4 +1,4 @@
-import { Pencil, Trash2 } from "lucide-react";
+import { CircleEllipsis, Pencil, Trash2 } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 
@@ -7,6 +7,8 @@ type TableRowActionsProps = {
   onDelete: () => void;
   editLabel: string;
   deleteLabel: string;
+  onViewDetails?: () => void;
+  viewDetailsLabel?: string;
 };
 
 export const TableRowActions = ({
@@ -14,9 +16,22 @@ export const TableRowActions = ({
   onDelete,
   editLabel,
   deleteLabel,
+  onViewDetails,
+  viewDetailsLabel,
 }: TableRowActionsProps) => {
   return (
     <div className="flex justify-around">
+      {onViewDetails && viewDetailsLabel ? (
+        <Button
+          variant="ghost"
+          size="icon"
+          className="text-corp-gray-500 hover:bg-brand-100 hover:text-brand-500"
+          onClick={onViewDetails}
+          aria-label={viewDetailsLabel}
+        >
+          <CircleEllipsis className="h-4 w-4" />
+        </Button>
+      ) : null}
       <Button
         variant="ghost"
         size="icon"

@@ -1,6 +1,6 @@
 import React from "react";
 import { NavContent } from "../../components/NavContent";
-import { HeaderBlock } from "../../components/HeaderBlock";
+import { HeaderBlock } from "./HeaderBlock";
 
 interface SidebarProps {
   isCollapsed: boolean;

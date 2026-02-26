@@ -27,6 +27,10 @@ export const useEmpresas = () => {
     console.log("edit", id);
   }, []);
 
+  const handleViewDetails = useCallback((id: number) => {
+    console.log("details", id);
+  }, []);
+
   const handleDelete = useCallback((id: number) => {
     setDeleteTargetId(id);
   }, []);
@@ -58,6 +62,7 @@ export const useEmpresas = () => {
     handleSearchChange,
     handleRowsPerPageChange,
     handlePageChange,
+    handleViewDetails,
     handleEdit,
     handleDelete,
     handleConfirmDelete,

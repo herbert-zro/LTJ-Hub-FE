@@ -21,6 +21,7 @@ export const EmpresasPage = () => {
     handleSearchChange,
     handleRowsPerPageChange,
     handlePageChange,
+    handleViewDetails,
     handleEdit,
     handleDelete,
     handleConfirmDelete,
@@ -43,8 +44,13 @@ export const EmpresasPage = () => {
   }, [filteredData, rowsPerPage, safeCurrentPage]);
 
   const columns = useMemo(
-    () => buildEmpresaColumns({ onEdit: handleEdit, onDelete: handleDelete }),
-    [handleDelete, handleEdit],
+    () =>
+      buildEmpresaColumns({
+        onViewDetails: handleViewDetails,
+        onEdit: handleEdit,
+        onDelete: handleDelete,
+      }),
+    [handleDelete, handleEdit, handleViewDetails],
   );
 
   return (

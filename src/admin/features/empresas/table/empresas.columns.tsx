@@ -5,11 +5,13 @@ import type { EmpresaRow } from "../types/empresas-types";
 type BuildEmpresaColumnsParams = {
   onEdit: (id: number) => void;
   onDelete: (id: number) => void;
+  onViewDetails: (id: number) => void;
 };
 
 export const buildEmpresaColumns = ({
   onEdit,
   onDelete,
+  onViewDetails,
 }: BuildEmpresaColumnsParams): ColumnDefinition<EmpresaRow>[] => [
   {
     key: "id",
@@ -56,9 +58,11 @@ export const buildEmpresaColumns = ({
   {
     key: "actions",
     header: "",
-    className: "w-[96px]",
+    className: "w-[140px]",
     cell: (row) => (
       <TableRowActions
+        onViewDetails={() => onViewDetails(row.id)}
+        viewDetailsLabel={`Ver detalle de empresa ${row.nombre}`}
         onEdit={() => onEdit(row.id)}
         onDelete={() => onDelete(row.id)}
         editLabel={`Editar empresa ${row.nombre}`}

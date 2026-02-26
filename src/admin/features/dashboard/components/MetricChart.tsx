@@ -11,7 +11,7 @@ import {
 } from "recharts";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
-import { RenderLegend } from "../../../components/RenderLegend";
+import { RenderLegend } from "./RenderLegend";
 
 export interface ChartData {
   month: string;
