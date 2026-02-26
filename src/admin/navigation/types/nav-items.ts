@@ -54,7 +54,7 @@ export const adminNavItems: AdminNavItem[] = [
   {
     label: "Empresas",
     icon: Building2,
-    to: "#",
+    to: "empresas",
     requiresCloseOnMobile: true,
   },
   {
