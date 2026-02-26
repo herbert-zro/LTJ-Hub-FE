@@ -7,7 +7,7 @@ import { DataTable } from "@/admin/components/data-table/DataTable";
 import { TableToolbar } from "@/admin/components/TableToolbar";
 import { CustomPagination } from "@/admin/components/custom/CustomPagination";
 import { Button } from "@/components/ui/button";
-import { useUsuariosPage } from "../hooks/useUsuariosPage";
+import { useUsuariosPage } from "../hooks/useUsuarios";
 import { buildUserColumns } from "../table/users.columns";
 
 export const UsuariosPage = () => {

@@ -11,19 +11,28 @@ import {
   SelectContent,
   SelectItem,
 } from "@/components/ui/select";
-import { isUserFormDirty } from "../utils/isUserFormDirty";
+import { isEmpresaFormDirty } from "../utils/isEmpresaFormDirty";
 
 import { Label } from "@/components/ui/label";
 
-export const UserForm = () => {
+export const EmpresasForm = () => {
   const navigate = useNavigate();
   const [nombre, setNombre] = useState("");
+  const [url, setUrl] = useState("");
+  const [direccion, setDireccion] = useState("");
+  const [telefono, setTelefono] = useState("");
   const [correo, setCorreo] = useState("");
-  const [rol, setRol] = useState("");
   const [estado, setEstado] = useState("");
   const [isCancelModalOpen, setIsCancelModalOpen] = useState(false);
 
-  const isDirty = isUserFormDirty({ nombre, correo, rol, estado });
+  const isDirty = isEmpresaFormDirty({
+    nombre,
+    url,
+    direccion,
+    telefono,
+    correo,
+    estado,
+  });
 
   const handleCancel = () => {
     if (isDirty) {
@@ -31,12 +40,12 @@ export const UserForm = () => {
       return;
     }
 
-    navigate("/admin/usuarios");
+    navigate("/admin/empresas");
   };
 
   const handleConfirmCancel = () => {
     setIsCancelModalOpen(false);
-    navigate("/admin/usuarios");
+    navigate("/admin/empresas");
   };
 
   const handleStayOnForm = () => {
@@ -47,13 +56,12 @@ export const UserForm = () => {
     <Card className="mx-auto w-full max-w-3xl border-corp-gray-200 bg-surface-card shadow-sm">
       <CardHeader className="pb-2">
         <CardTitle className="text-xl font-bold text-text-strong md:text-2xl">
-          Formulario de Usuario
+          Formulario de Empresa
         </CardTitle>
       </CardHeader>
 
       <CardContent className="pt-4">
         <form className="space-y-6">
-          {/* Nombre */}
           <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:gap-6">
             <div className="space-y-2">
               <Label
@@ -64,14 +72,66 @@ export const UserForm = () => {
               </Label>
               <Input
                 id="nombre"
-                placeholder="Ingrese el nombre completo"
+                placeholder="Ingrese el nombre de la empresa"
                 value={nombre}
                 onChange={(event) => setNombre(event.target.value)}
                 className="border-corp-gray-200 bg-surface-card text-text-strong placeholder:text-corp-gray-400 hover:border-corp-gray-400 focus-visible:border-brand-500 focus-visible:ring-brand-100/70"
               />
             </div>
 
-            {/* Correo */}
+            <div className="space-y-2">
+              <Label
+                htmlFor="url"
+                className="text-sm font-semibold text-text-strong"
+              >
+                URL
+              </Label>
+              <Input
+                id="url"
+                placeholder="https://empresa.com"
+                value={url}
+                onChange={(event) => setUrl(event.target.value)}
+                className="border-corp-gray-200 bg-surface-card text-text-strong placeholder:text-corp-gray-400 hover:border-corp-gray-400 focus-visible:border-brand-500 focus-visible:ring-brand-100/70"
+              />
+            </div>
+          </div>
+
+          <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:gap-6">
+            <div className="space-y-2">
+              <Label
+                htmlFor="direccion"
+                className="text-sm font-semibold text-text-strong"
+              >
+                Dirección
+              </Label>
+              <Input
+                id="direccion"
+                placeholder="Ingrese la dirección"
+                value={direccion}
+                onChange={(event) => setDireccion(event.target.value)}
+                className="border-corp-gray-200 bg-surface-card text-text-strong placeholder:text-corp-gray-400 hover:border-corp-gray-400 focus-visible:border-brand-500 focus-visible:ring-brand-100/70"
+              />
+            </div>
+
+            <div className="space-y-2">
+              <Label
+                htmlFor="telefono"
+                className="text-sm font-semibold text-text-strong"
+              >
+                Teléfono
+              </Label>
+              <Input
+                id="telefono"
+                type="tel"
+                placeholder="Ingrese el teléfono"
+                value={telefono}
+                onChange={(event) => setTelefono(event.target.value)}
+                className="border-corp-gray-200 bg-surface-card text-text-strong placeholder:text-corp-gray-400 hover:border-corp-gray-400 focus-visible:border-brand-500 focus-visible:ring-brand-100/70"
+              />
+            </div>
+          </div>
+
+          <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:gap-6">
             <div className="space-y-2">
               <Label
                 htmlFor="correo"
@@ -88,42 +148,7 @@ export const UserForm = () => {
                 className="border-corp-gray-200 bg-surface-card text-text-strong placeholder:text-corp-gray-400 hover:border-corp-gray-400 focus-visible:border-brand-500 focus-visible:ring-brand-100/70"
               />
             </div>
-          </div>
 
-          <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:gap-6">
-            {/* Rol */}
-            <div className="space-y-2">
-              <Label
-                htmlFor="rol"
-                className="text-sm font-semibold text-text-strong"
-              >
-                Rol
-              </Label>
-              <Select value={rol} onValueChange={setRol}>
-                <SelectTrigger
-                  id="rol"
-                  className="w-full border-corp-gray-200 bg-surface-card text-corp-gray-600 hover:border-corp-gray-400 focus-visible:border-brand-500 focus-visible:ring-brand-100/70"
-                >
-                  <SelectValue placeholder="Seleccione rol" />
-                </SelectTrigger>
-                <SelectContent className="border-corp-gray-200 bg-surface-card">
-                  <SelectItem
-                    value="administrador"
-                    className="text-corp-gray-600 focus:bg-brand-100 focus:text-brand-500"
-                  >
-                    Administrador
-                  </SelectItem>
-                  <SelectItem
-                    value="usuario"
-                    className="text-corp-gray-600 focus:bg-brand-100 focus:text-brand-500"
-                  >
-                    Usuario
-                  </SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-
-            {/* Estado */}
             <div className="space-y-2">
               <Label
                 htmlFor="estado"
@@ -156,7 +181,6 @@ export const UserForm = () => {
             </div>
           </div>
 
-          {/* Botón */}
           <div className="flex flex-col-reverse gap-3 pt-2 md:flex-row md:justify-end md:pt-4">
             <Button
               type="button"
