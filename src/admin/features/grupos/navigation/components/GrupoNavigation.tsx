@@ -1,17 +1,17 @@
 import { NavLink } from "react-router";
 
-import type { EmpresaNavItem } from "../types/nav-items";
+import type { GruposNavItem } from "../types/nav-items";
 
-type EmpresaNavigationProps = {
-  links: EmpresaNavItem[];
+type GrupoNavigationProps = {
+  links: GruposNavItem[];
 };
 
-export const EmpresaNavigation = ({ links }: EmpresaNavigationProps) => {
+export const GrupoNavigation = ({ links }: GrupoNavigationProps) => {
   return (
     <div className="rounded-xl border bg-white p-3">
       <nav
         className="flex flex-wrap justify-around gap-2 sm:justify-start"
-        aria-label="Navegación de empresa"
+        aria-label="Navegación de grupo"
       >
         {links.map((link) => (
           <NavLink

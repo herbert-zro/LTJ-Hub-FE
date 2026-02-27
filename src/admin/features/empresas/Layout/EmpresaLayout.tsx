@@ -1,4 +1,3 @@
-import { AdminTitle } from "@/admin/components/AdminTitle";
 import { Outlet, useParams } from "react-router";
 
 import { EmpresaNavigation } from "../navigation/components/EmpresaNavigation";

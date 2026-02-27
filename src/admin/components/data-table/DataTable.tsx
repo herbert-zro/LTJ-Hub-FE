@@ -24,6 +24,32 @@ export const DataTable = <T,>({
   getRowId,
   emptyMessage = "Sin datos disponibles",
 }: DataTableProps<T>) => {
+  const formatHeaderLabel = (header: React.ReactNode) => {
+    if (typeof header !== "string") {
+      return header;
+    }
+
+    const text = header.trim();
+
+    if (!text) {
+      return header;
+    }
+
+    const hasLetters = /[A-Za-zÁÉÍÓÚÜÑáéíóúüñ]/.test(text);
+
+    if (!hasLetters || text !== text.toUpperCase()) {
+      return header;
+    }
+
+    return text
+      .toLowerCase()
+      .replace(
+        /(^|[\s\-_/()])([\p{L}])/gu,
+        (_match, separator: string, character: string) =>
+          `${separator}${character.toUpperCase()}`,
+      );
+  };
+
   const hasData = data.length > 0;
   const columnCount = Math.max(columns.length, 1);
   const [openActionsFor, setOpenActionsFor] = React.useState<
@@ -59,8 +85,8 @@ export const DataTable = <T,>({
                   <div className="flex-1 space-y-3">
                     {cardColumns.map((col) => (
                       <div key={col.key} className="space-y-1">
-                        <p className="text-brand-500 text-xs font-semibold uppercase tracking-wide">
-                          {col.header}
+                        <p className="text-brand-500 text-xs font-semibold tracking-wide">
+                          {formatHeaderLabel(col.header)}
                         </p>
                         <div className="text-sm text-text-strong">
                           {col.cell(row)}
@@ -107,7 +133,7 @@ export const DataTable = <T,>({
                   key={col.key}
                   className={`${col.className ?? ""} border-b border-corp-gray-200 text-brand-500 font-semibold`}
                 >
-                  {col.header}
+                  {formatHeaderLabel(col.header)}
                 </TableHead>
               ))}
             </TableRow>

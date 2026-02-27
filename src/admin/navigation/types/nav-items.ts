@@ -60,7 +60,7 @@ export const adminNavItems: AdminNavItem[] = [
   {
     label: "Grupos",
     icon: Users,
-    to: "#",
+    to: "/admin/grupos",
     requiresCloseOnMobile: true,
   },
   {
