@@ -11,7 +11,7 @@ export const useAdminSubmenu = ({
   isMobile,
   pathname,
 }: UseAdminSubmenuParams) => {
-  const [isOpen, setIsOpen] = useState(true);
+  const [isOpen, setIsOpen] = useState(false);
 
   const toggle = useCallback(() => {
     setIsOpen((prev) => !prev);

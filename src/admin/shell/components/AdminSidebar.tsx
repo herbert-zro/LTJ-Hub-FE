@@ -1,5 +1,5 @@
 import React from "react";
-import { NavContent } from "../../components/NavContent";
+import { NavContent } from "./NavContent";
 import { HeaderBlock } from "./HeaderBlock";
 
 interface SidebarProps {

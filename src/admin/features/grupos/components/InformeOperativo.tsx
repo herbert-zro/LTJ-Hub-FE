@@ -297,27 +297,33 @@ export const InformeOperativo = () => {
 
       <Card className="border-corp-gray-200 bg-surface-card shadow-sm">
         <CardContent className="py-2">
-          <div className="flex w-full flex-wrap items-center justify-around gap-2 sm:w-auto sm:justify-start">
-            <Button
-              type="button"
-              variant="outline"
-              size="sm"
-              className="border-red-300 bg-surface-card text-red-600 transition-colors hover:bg-red-600 hover:text-white"
-              onClick={() => console.log("generate pdf", user.id)}
-            >
-              <FileText className="h-4 w-4" />
-              Generar PDF
-            </Button>
-            <Button
-              type="button"
-              variant="outline"
-              size="sm"
-              className="border-blue-300 bg-surface-card text-blue-600 transition-colors hover:bg-blue-600 hover:text-white"
-              onClick={() => console.log("generate word", user.id)}
-            >
-              <FileType className="h-4 w-4" />
-              Generar Word
-            </Button>
+          <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+            <p className="text-center text-sm text-corp-gray-600 sm:text-left">
+              Exporta este informe operativo en el formato que necesites.
+            </p>
+
+            <div className="flex w-full flex-wrap items-center justify-center gap-2 sm:w-auto sm:justify-end">
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                className="border-amber-300 bg-surface-card text-amber-700 transition-colors hover:bg-amber-600 hover:text-white"
+                onClick={() => console.log("generate pdf", user.id)}
+              >
+                <FileText className="h-4 w-4" />
+                Generar PDF
+              </Button>
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                className="border-blue-300 bg-surface-card text-blue-600 transition-colors hover:bg-blue-600 hover:text-white"
+                onClick={() => console.log("generate word", user.id)}
+              >
+                <FileType className="h-4 w-4" />
+                Generar Word
+              </Button>
+            </div>
           </div>
         </CardContent>
       </Card>

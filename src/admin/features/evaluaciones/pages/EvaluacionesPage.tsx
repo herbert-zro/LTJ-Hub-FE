@@ -8,14 +8,24 @@ import { DataTable } from "@/admin/components/data-table/DataTable";
 import type { ColumnDefinition } from "@/admin/components/data-table/types/column-types";
 import { TableRowActions } from "@/admin/components/TableRowActions";
 import { Button } from "@/components/ui/button";
-import type { EvaluacionRow } from "./types/evaluationes-types";
+
 import { TableToolbar } from "@/admin/components/TableToolbar";
 import { CustomPagination } from "@/admin/components/custom/CustomPagination";
+import type { EvaluacionRow } from "../types/evaluationes-types";
 
 const EVALUACIONES_DATA: EvaluacionRow[] = [
   { id: 1, nombre: "TCG", tipo: 1, indicador: null },
   { id: 2, nombre: "CI - VERSION D", tipo: 1, indicador: 1 },
   { id: 3, nombre: "TEST DE PERSONALIDAD", tipo: 2, indicador: 3 },
+  { id: 4, nombre: "DISC", tipo: 1, indicador: 2 },
+  { id: 5, nombre: "16PF", tipo: 2, indicador: 4 },
+  { id: 6, nombre: "RAVEN", tipo: 1, indicador: 2 },
+  { id: 7, nombre: "WONDERLIC", tipo: 1, indicador: null },
+  { id: 8, nombre: "MMPI", tipo: 2, indicador: 5 },
+  { id: 9, nombre: "PRUEBA DE LIDERAZGO", tipo: 2, indicador: 3 },
+  { id: 10, nombre: "PRUEBA DE VENTAS", tipo: 1, indicador: 1 },
+  { id: 11, nombre: "PRUEBA DE SERVICIO", tipo: 1, indicador: 2 },
+  { id: 12, nombre: "PRUEBA DE LOGÍSTICA", tipo: 2, indicador: null },
 ];
 
 const formatTipo = (tipo: number) => {

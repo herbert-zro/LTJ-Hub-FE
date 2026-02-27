@@ -44,7 +44,22 @@ export const buildUserColumns = ({
     key: "estado",
     header: "ESTADO",
     className: "w-[140px]",
-    cell: (row) => row.estado,
+    cell: (row) => (
+      <span
+        className={`inline-flex items-center rounded-full border px-2 py-1 text-xs font-medium ${
+          row.estado === "Activo"
+            ? "border-green-200 bg-green-100 text-green-700"
+            : "border-red-200 bg-red-100 text-red-700"
+        }`}
+      >
+        <span
+          className={`mr-1.5 inline-block h-2 w-2 rounded-full ${
+            row.estado === "Activo" ? "bg-green-600" : "bg-red-600"
+          }`}
+        />
+        {row.estado}
+      </span>
+    ),
   },
   {
     key: "actions",

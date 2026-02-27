@@ -1,0 +1,118 @@
+import { ChevronDown } from "lucide-react";
+import { Fragment } from "react";
+import { cn } from "@/lib/utils";
+import { CustomMenu } from "../../components/custom/CustomMenu";
+import { useLocation } from "react-router";
+import { adminNavItems } from "@/admin/navigation/types/nav-items";
+import { useAdminSubmenu } from "@/admin/navigation/hooks/useAdminSubmenu";
+import { NavItemButton, NavItemLink } from "@/admin/navigation/components";
+
+export const NavContent = ({
+  collapsed,
+  isMobile,
+}: {
+  collapsed: boolean;
+  isMobile?: boolean;
+}) => {
+  const { pathname } = useLocation();
+
+  const isItemActive = (to?: string, exactMatch?: boolean) => {
+    if (!to || to === "#") {
+      return false;
+    }
+
+    if (exactMatch) {
+      return pathname === to;
+    }
+
+    return pathname === to || pathname.startsWith(`${to}/`);
+  };
+
+  const { isOpen: isAdminSubmenuOpen, toggle: toggleAdminSubmenu } =
+    useAdminSubmenu({
+      collapsed,
+      isMobile,
+      pathname,
+    });
+
+  return (
+    <>
+      <nav className="flex-1 p-4">
+        <ul className="space-y-2">
+          {adminNavItems.map((item, index) => {
+            const isAdminItem = item.isExpandable && item.children?.length;
+            const isActive = isAdminItem
+              ? (item.children ?? []).some((child) =>
+                  isItemActive(child.to, child.exactMatch),
+                )
+              : isItemActive(item.to, item.exactMatch);
+            const shouldRenderDivider = item.label === "Candidatos";
+
+            if (isAdminItem) {
+              return (
+                <Fragment key={index}>
+                  <li>
+                    <NavItemButton
+                      collapsed={collapsed}
+                      active={isActive}
+                      onClick={toggleAdminSubmenu}
+                      label={item.label}
+                      icon={item.icon}
+                      rightSlot={
+                        <ChevronDown
+                          size={16}
+                          className={cn(
+                            "ml-auto shrink-0 transition-transform duration-200",
+                            isAdminSubmenuOpen && "rotate-180",
+                          )}
+                        />
+                      }
+                    />
+
+                    {!collapsed && isAdminSubmenuOpen && (
+                      <div className="mt-2 pl-6">
+                        <CustomMenu
+                          items={item.children ?? []}
+                          isMobile={Boolean(isMobile)}
+                        />
+                      </div>
+                    )}
+                  </li>
+
+                  {shouldRenderDivider ? (
+                    <li className="my-3 px-3" aria-hidden="true">
+                      <div className="h-px bg-corp-gray-200" />
+                    </li>
+                  ) : null}
+                </Fragment>
+              );
+            }
+
+            return (
+              <Fragment key={index}>
+                <li>
+                  <NavItemLink
+                    collapsed={collapsed}
+                    active={isActive}
+                    to={item.to ?? "#"}
+                    label={item.label}
+                    icon={item.icon}
+                    closeOnMobile={
+                      Boolean(isMobile) && Boolean(item.requiresCloseOnMobile)
+                    }
+                  />
+                </li>
+
+                {shouldRenderDivider ? (
+                  <li className="my-3 px-3" aria-hidden="true">
+                    <div className="h-px bg-corp-gray-200" />
+                  </li>
+                ) : null}
+              </Fragment>
+            );
+          })}
+        </ul>
+      </nav>
+    </>
+  );
+};

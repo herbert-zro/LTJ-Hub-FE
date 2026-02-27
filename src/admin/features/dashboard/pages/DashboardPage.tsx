@@ -16,6 +16,8 @@ import {
   ClipboardCheck,
   Clock3,
 } from "lucide-react";
+import { CandidatosChart } from "../components/CandidatosChart";
+import { EvaluacionesPorTipo } from "../components/EvaluacionesPorTipo";
 
 const stats = [
   {
@@ -54,14 +56,14 @@ const stats = [
 
 const performanceData = [
   {
+    label: "Total de Evaluaciones",
+    value: 37414,
+    color: "from-violet-500 to-violet-700",
+  },
+  {
     label: "Evaluaciones Completadas",
     value: 24567,
     color: "from-emerald-500 to-emerald-600",
-  },
-  {
-    label: "Evaluaciones en Proceso",
-    value: 18234,
-    color: "from-violet-500 to-violet-700",
   },
   {
     label: "Evaluaciones Pendientes",
@@ -101,17 +103,14 @@ export const DashboardPage = () => {
         ))}
       </div>
 
-      <div className="flex items-start justify-center mb-8">
-        <div className="w-full ">
-          <MetricChart />
-        </div>
-      </div>
-
-      <div className="grid grid-cols-2">
+      <div className="mb-8 grid grid-cols-1 gap-6 md:grid-cols-2">
+        <MetricChart />
+        <CandidatosChart />
         <EvaluacionesChart
           title="Evaluaciones por Departamento"
           data={performanceData}
         />
+        <EvaluacionesPorTipo />
       </div>
     </>
   );

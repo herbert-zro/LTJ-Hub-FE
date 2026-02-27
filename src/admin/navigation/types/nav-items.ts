@@ -1,5 +1,11 @@
 import type { LucideIcon } from "lucide-react";
-import { Building2, LayoutDashboard, UserRound, Users } from "lucide-react";
+import {
+  Building2,
+  LayoutDashboard,
+  Settings,
+  UserRound,
+  Users,
+} from "lucide-react";
 
 export interface AdminNavItem {
   label: string;
@@ -13,17 +19,36 @@ export interface AdminNavItem {
 
 export const adminNavItems: AdminNavItem[] = [
   {
-    label: "Administración",
+    label: "Dashboard",
     icon: LayoutDashboard,
+    to: "/admin",
+    requiresCloseOnMobile: true,
+    exactMatch: true,
+  },
+  {
+    label: "Empresas",
+    icon: Building2,
+    to: "/admin/empresas",
+    requiresCloseOnMobile: true,
+  },
+  {
+    label: "Grupos",
+    icon: Users,
+    to: "/admin/grupos",
+    requiresCloseOnMobile: true,
+  },
+  {
+    label: "Candidatos",
+    icon: UserRound,
+    to: "/admin/candidatos",
+    requiresCloseOnMobile: true,
+  },
+  {
+    label: "Administración",
+    icon: Settings,
     to: "/admin",
     isExpandable: true,
     children: [
-      {
-        label: "Dashboard",
-        to: "/admin",
-        requiresCloseOnMobile: true,
-        exactMatch: true,
-      },
       {
         label: "Usuarios",
         to: "/admin/usuarios",
@@ -50,23 +75,5 @@ export const adminNavItems: AdminNavItem[] = [
         requiresCloseOnMobile: true,
       },
     ],
-  },
-  {
-    label: "Empresas",
-    icon: Building2,
-    to: "/admin/empresas",
-    requiresCloseOnMobile: true,
-  },
-  {
-    label: "Grupos",
-    icon: Users,
-    to: "/admin/grupos",
-    requiresCloseOnMobile: true,
-  },
-  {
-    label: "Candidatos",
-    icon: UserRound,
-    to: "#",
-    requiresCloseOnMobile: true,
   },
 ];

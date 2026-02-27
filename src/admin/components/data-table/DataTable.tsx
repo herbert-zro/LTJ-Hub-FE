@@ -131,7 +131,7 @@ export const DataTable = <T,>({
               {columns.map((col) => (
                 <TableHead
                   key={col.key}
-                  className={`${col.className ?? ""} border-b border-corp-gray-200 text-brand-500 font-semibold`}
+                  className={`${col.className ?? ""} border-b border-corp-gray-200 text-brand-500 font-semibold first:pl-5`}
                 >
                   {formatHeaderLabel(col.header)}
                 </TableHead>
@@ -158,7 +158,7 @@ export const DataTable = <T,>({
                   {columns.map((col) => (
                     <TableCell
                       key={col.key}
-                      className={`${col.className ?? ""} text-text-strong`}
+                      className={`${col.className ?? ""} text-text-strong first:pl-5`}
                     >
                       {col.cell(row)}
                     </TableCell>

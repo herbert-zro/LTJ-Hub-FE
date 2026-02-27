@@ -18,6 +18,14 @@ const StatCard: React.FC<StatCardProps> = ({
   icon: Icon,
   color,
 }) => {
+  const topBorderColor =
+    {
+      "bg-blue-500": "border-t-blue-500",
+      "bg-green-500": "border-t-green-500",
+      "bg-purple-500": "border-t-purple-500",
+      "bg-orange-500": "border-t-orange-500",
+    }[color] ?? "border-t-gray-300";
+
   const changeColor = {
     positive: "text-green-600 bg-green-50",
     negative: "text-red-600 bg-red-50",
@@ -25,7 +33,9 @@ const StatCard: React.FC<StatCardProps> = ({
   }[changeType];
 
   return (
-    <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-200 hover:shadow-md transition-shadow">
+    <div
+      className={`bg-white p-6 rounded-xl shadow-sm border border-gray-200 border-t-4 ${topBorderColor} hover:shadow-md transition-shadow`}
+    >
       <div className="flex items-center justify-between">
         <div>
           <p className="text-sm font-medium text-gray-600 mb-1">{title}</p>

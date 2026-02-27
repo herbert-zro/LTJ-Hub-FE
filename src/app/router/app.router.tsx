@@ -9,6 +9,7 @@ import { correoRoutes } from "@/admin/features/correo/correo.routes";
 import { bitacoraRoutes } from "@/admin/features/bitacora/bitacora.routes";
 import { empresasRoutes } from "@/admin/features/empresas/empresas.routes";
 import { gruposRoutes } from "@/admin/features/grupos/grupos.routes";
+import { candidatosRoutes } from "@/admin/features/candidatos/candidatos.routes";
 
 const AuthLayout = lazy(() => import("@/auth/layout/AuthLayout"));
 const AdminLayout = lazy(() => import("@/admin/shell/layout/AdminLayout"));
@@ -34,6 +35,7 @@ export const appRouter = createBrowserRouter([
       ...bitacoraRoutes,
       ...empresasRoutes,
       ...gruposRoutes,
+      ...candidatosRoutes,
     ],
   },
 ]);

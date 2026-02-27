@@ -14,13 +14,17 @@ export const GrupoFileToolbar = ({
   onWordClick,
 }: GrupoFileToolbarProps) => {
   return (
-    <div className="mb-4 flex flex-col gap-3 rounded-xl border border-corp-gray-200 bg-surface-card p-4 sm:flex-row sm:items-center sm:justify-end">
-      <div className="flex w-full items-center justify-around gap-2 sm:w-auto sm:justify-start">
+    <div className="mb-4 flex flex-col gap-3 rounded-xl border border-corp-gray-200 bg-surface-card p-4 sm:flex-row sm:items-center sm:justify-between">
+      <p className="text-center text-sm text-corp-gray-600 sm:text-left">
+        Exporta el listado del grupo en el formato que necesites.
+      </p>
+
+      <div className="flex w-full items-center justify-around gap-2 sm:w-auto sm:justify-end">
         <Button
           type="button"
           variant="outline"
           size="sm"
-          className="border-red-300 bg-surface-card text-red-600 transition-colors hover:bg-red-600 hover:text-white"
+          className="border-amber-300 bg-surface-card text-amber-700 transition-colors hover:bg-amber-600 hover:text-white"
           onClick={onPdfClick}
           aria-label="Exportar PDF"
         >
