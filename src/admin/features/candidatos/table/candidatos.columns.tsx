@@ -3,12 +3,27 @@ import type { ColumnDefinition } from "@/admin/components/data-table/types/colum
 import { CandidatoViewCommand } from "../components/CandidatoViewCommand";
 import type { CandidatoRow } from "../types/candidatos-types";
 
-export const buildCandidatosColumns = (): ColumnDefinition<CandidatoRow>[] => [
+type BuildCandidatosColumnsParams = {
+  onViewCv: (row: CandidatoRow) => void;
+};
+
+export const buildCandidatosColumns = ({
+  onViewCv,
+}: BuildCandidatosColumnsParams): ColumnDefinition<CandidatoRow>[] => [
   {
     key: "nombre",
     header: "NOMBRE",
     className: "w-[220px]",
-    cell: (row) => row.nombre,
+    cell: (row) => (
+      <div className="inline-flex items-center gap-2">
+        <span
+          className={`inline-block h-2 w-2 rounded-full ${
+            row.estado === "Activo" ? "bg-green-600" : "bg-red-600"
+          }`}
+        />
+        <span>{row.nombre}</span>
+      </div>
+    ),
   },
   {
     key: "usuario",
@@ -16,12 +31,14 @@ export const buildCandidatosColumns = (): ColumnDefinition<CandidatoRow>[] => [
     className: "w-[140px]",
     cell: (row) => row.usuario,
   },
+
   {
     key: "correo",
     header: "CORREO",
     className: "w-[240px]",
     cell: (row) => row.correo,
   },
+
   {
     key: "documento",
     header: "DOCUMENTO",
@@ -33,12 +50,6 @@ export const buildCandidatosColumns = (): ColumnDefinition<CandidatoRow>[] => [
     header: "TELÉFONO",
     className: "w-[130px]",
     cell: (row) => row.telefono,
-  },
-  {
-    key: "empresa",
-    header: "EMPRESA",
-    className: "w-[180px]",
-    cell: (row) => row.empresa,
   },
   {
     key: "tipoRegistro",
@@ -64,6 +75,12 @@ export const buildCandidatosColumns = (): ColumnDefinition<CandidatoRow>[] => [
     },
   },
   {
+    key: "empresa",
+    header: "EMPRESA",
+    className: "w-[180px]",
+    cell: (row) => row.empresa,
+  },
+  {
     key: "estadoRegistro",
     header: "ESTADO DE REGISTRO",
     className: "w-[170px]",
@@ -86,7 +103,7 @@ export const buildCandidatosColumns = (): ColumnDefinition<CandidatoRow>[] => [
       </span>
     ),
   },
-  {
+  /* {
     key: "curriculum",
     header: "CURRICULUM",
     className: "w-[130px]",
@@ -100,28 +117,7 @@ export const buildCandidatosColumns = (): ColumnDefinition<CandidatoRow>[] => [
         Descargar
       </a>
     ),
-  },
-  {
-    key: "estado",
-    header: "ESTADO",
-    className: "w-[120px]",
-    cell: (row) => (
-      <span
-        className={`inline-flex items-center rounded-full border px-2 py-1 text-xs font-medium ${
-          row.estado === "Activo"
-            ? "border-green-200 bg-green-100 text-green-700"
-            : "border-red-200 bg-red-100 text-red-700"
-        }`}
-      >
-        <span
-          className={`mr-1.5 inline-block h-2 w-2 rounded-full ${
-            row.estado === "Activo" ? "bg-green-600" : "bg-red-600"
-          }`}
-        />
-        {row.estado}
-      </span>
-    ),
-  },
+  }, */
   {
     key: "actions",
     header: "",
@@ -129,7 +125,7 @@ export const buildCandidatosColumns = (): ColumnDefinition<CandidatoRow>[] => [
     cell: (row) => (
       <div className="flex justify-center">
         <CandidatoViewCommand
-          onView={() => console.log("view candidato", row.id)}
+          onView={() => onViewCv(row)}
           viewLabel={`Ver candidato ${row.nombre}`}
         />
       </div>

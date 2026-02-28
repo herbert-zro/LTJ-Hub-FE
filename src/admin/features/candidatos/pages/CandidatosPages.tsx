@@ -1,12 +1,17 @@
-import { useMemo } from "react";
+import { useMemo, useState } from "react";
 import { AdminTitle } from "@/admin/components/AdminTitle";
 import { CustomPagination } from "@/admin/components/custom/CustomPagination";
 import { DataTable } from "@/admin/components/data-table/DataTable";
 import { TableToolbar } from "@/admin/components/TableToolbar";
 import { useCandidatosPage } from "../hooks/useCandidatos";
+import { ModalVistaCv } from "../components/ModalVistaCv";
 import { buildCandidatosColumns } from "../table/candidatos.columns";
+import type { CandidatoRow } from "../types/candidatos-types";
 
 export const CandidatosPages = () => {
+  const [selectedCandidatoCv, setSelectedCandidatoCv] =
+    useState<CandidatoRow | null>(null);
+
   const {
     searchTerm,
     rowsPerPage,
@@ -32,7 +37,13 @@ export const CandidatosPages = () => {
     return filteredData.slice(start, start + rowsPerPage);
   }, [filteredData, rowsPerPage, safeCurrentPage]);
 
-  const columns = useMemo(() => buildCandidatosColumns(), []);
+  const columns = useMemo(
+    () =>
+      buildCandidatosColumns({
+        onViewCv: (row) => setSelectedCandidatoCv(row),
+      }),
+    [],
+  );
 
   return (
     <section>
@@ -57,6 +68,14 @@ export const CandidatosPages = () => {
         columns={columns}
         getRowId={(row) => row.id}
         emptyMessage="No hay candidatos registrados"
+      />
+
+      <ModalVistaCv
+        isOpen={Boolean(selectedCandidatoCv)}
+        onClose={() => setSelectedCandidatoCv(null)}
+        candidatoNombre={selectedCandidatoCv?.nombre ?? "Candidato de prueba"}
+        candidatoUsuario={selectedCandidatoCv?.usuario ?? "usuario-demo"}
+        pdfUrl={selectedCandidatoCv?.curriculumUrl ?? "/documentos/cv-demo.pdf"}
       />
 
       <CustomPagination

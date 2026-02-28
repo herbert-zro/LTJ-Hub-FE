@@ -14,7 +14,7 @@ export const CandidatoViewCommand = ({
     <Button
       variant="ghost"
       size="icon"
-      className="text-corp-gray-500 hover:bg-blue-100 hover:text-blue-600"
+      className="cursor-pointer bg-blue-50 text-blue-600 hover:bg-blue-200 hover:text-blue-700"
       onClick={onView}
       aria-label={viewLabel}
     >

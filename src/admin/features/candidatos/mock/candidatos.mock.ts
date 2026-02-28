@@ -55,8 +55,8 @@ export const CANDIDATOS_DATA: CandidatoRow[] = Array.from(
       empresa: EMPRESAS[index % EMPRESAS.length],
       tipoRegistro: id % 2 === 0 ? "email" : "whatsapp",
       estadoRegistro: id % 3 === 0 ? "Pendiente" : "Completado",
-      curriculumUrl: `/documentos/cv-candidato-${id}.pdf`,
-      estado: id % 5 === 0 ? "Inactivo" : "Activo",
+      curriculumUrl: "/cv-falso.pdf",
+      estado: id % 5 === 0 || id === 2 || id === 7 ? "Inactivo" : "Activo",
     };
   },
 );
