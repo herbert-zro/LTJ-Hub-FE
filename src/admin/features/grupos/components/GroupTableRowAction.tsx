@@ -14,11 +14,10 @@ type GroupTableRowActionProps = {
 };
 
 export const GroupTableRowAction = ({
-  onView,
   onOperationalReport,
   onDiscResult,
   onEmail,
-  viewLabel,
+
   operationalReportLabel,
   discResultLabel,
   emailLabel,
@@ -28,7 +27,7 @@ export const GroupTableRowAction = ({
       <Button
         variant="ghost"
         size="icon"
-        className="bg-emerald-100 text-emerald-700 transition-none hover:bg-emerald-100 hover:text-emerald-700"
+        className="cursor-pointer bg-emerald-100 text-emerald-700 transition-colors hover:bg-emerald-300 hover:text-emerald-800"
         onClick={onOperationalReport}
         aria-label={operationalReportLabel}
       >
@@ -38,7 +37,7 @@ export const GroupTableRowAction = ({
       <Button
         variant="ghost"
         size="icon"
-        className="bg-violet-100 text-violet-700 transition-none hover:bg-violet-100 hover:text-violet-700"
+        className="cursor-pointer bg-violet-100 text-violet-700 transition-colors hover:bg-violet-300 hover:text-violet-800"
         onClick={onDiscResult}
         aria-label={discResultLabel}
       >
@@ -48,7 +47,7 @@ export const GroupTableRowAction = ({
       <Button
         variant="ghost"
         size="icon"
-        className="bg-amber-100 text-amber-700 transition-none hover:bg-amber-100 hover:text-amber-700"
+        className="cursor-pointer bg-amber-100 text-amber-700 transition-colors hover:bg-amber-300 hover:text-amber-800"
         onClick={onEmail}
         aria-label={emailLabel}
       >

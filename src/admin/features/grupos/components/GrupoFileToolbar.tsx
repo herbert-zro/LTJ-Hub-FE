@@ -24,7 +24,7 @@ export const GrupoFileToolbar = ({
           type="button"
           variant="outline"
           size="sm"
-          className="border-amber-300 bg-surface-card text-amber-700 transition-colors hover:bg-amber-600 hover:text-white"
+          className="cursor-pointer border-amber-300 bg-surface-card text-amber-700 transition-colors hover:bg-amber-600 hover:text-white"
           onClick={onPdfClick}
           aria-label="Exportar PDF"
         >
@@ -36,7 +36,7 @@ export const GrupoFileToolbar = ({
           type="button"
           variant="outline"
           size="sm"
-          className="border-emerald-300 bg-surface-card text-emerald-600 transition-colors hover:bg-emerald-600 hover:text-white"
+          className="cursor-pointer border-emerald-300 bg-surface-card text-emerald-600 transition-colors hover:bg-emerald-600 hover:text-white"
           onClick={onExcelClick}
           aria-label="Exportar Excel"
         >
@@ -48,7 +48,7 @@ export const GrupoFileToolbar = ({
           type="button"
           variant="outline"
           size="sm"
-          className="border-blue-300 bg-surface-card text-blue-600 transition-colors hover:bg-blue-600 hover:text-white"
+          className="cursor-pointer border-blue-300 bg-surface-card text-blue-600 transition-colors hover:bg-blue-600 hover:text-white"
           onClick={onWordClick}
           aria-label="Exportar Word"
         >
