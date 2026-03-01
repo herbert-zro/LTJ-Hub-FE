@@ -2,6 +2,7 @@ import {
   Line,
   LineChart,
   CartesianGrid,
+  Legend,
   ResponsiveContainer,
   Tooltip,
   XAxis,
@@ -59,28 +60,6 @@ export const ComparativeChart = ({ candidates }: ComparativeChartProps) => {
           Comparación de desempeño por métricas comunes.
         </p>
 
-        <div className="mt-4 flex flex-wrap gap-2">
-          {candidates.map((candidate, index) => {
-            const color = CANDIDATE_COLORS[index % CANDIDATE_COLORS.length];
-
-            return (
-              <div
-                key={`legend-${candidate.id}`}
-                className="inline-flex items-center gap-2 rounded-md border border-corp-gray-200 bg-surface-card px-2 py-1"
-              >
-                <span
-                  className="h-2.5 w-2.5 rounded-full"
-                  style={{ backgroundColor: color }}
-                  aria-hidden="true"
-                />
-                <span className="text-xs font-medium text-text-strong">
-                  {candidate.nombre}
-                </span>
-              </div>
-            );
-          })}
-        </div>
-
         <div className="mt-7 h-[420px] min-w-0 w-full">
           <ResponsiveContainer
             width="100%"
@@ -88,7 +67,10 @@ export const ComparativeChart = ({ candidates }: ComparativeChartProps) => {
             minWidth={0}
             minHeight={320}
           >
-            <LineChart data={chartData}>
+            <LineChart
+              data={chartData}
+              margin={{ top: 10, right: 12, left: 0, bottom: 0 }}
+            >
               <CartesianGrid strokeDasharray="3 3" stroke="hsl(220 14% 16%)" />
               <XAxis
                 dataKey="metric"
@@ -110,16 +92,21 @@ export const ComparativeChart = ({ candidates }: ComparativeChartProps) => {
                   color: "hsl(210 20% 92%)",
                 }}
               />
+              <Legend
+                verticalAlign="top"
+                wrapperStyle={{ paddingBottom: 12, fontSize: 12 }}
+              />
 
               {candidates.map((candidate, index) => (
                 <Line
                   key={candidate.id}
-                  type="monotone"
+                  type="linear"
                   dataKey={`candidate-${candidate.id}`}
                   name={candidate.nombre}
                   stroke={CANDIDATE_COLORS[index % CANDIDATE_COLORS.length]}
                   strokeWidth={2}
-                  dot={false}
+                  dot={{ r: 4, strokeWidth: 2, fill: "hsl(220 18% 10%)" }}
+                  activeDot={{ r: 5 }}
                 />
               ))}
             </LineChart>
