@@ -9,7 +9,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { FileText, FileType } from "lucide-react";
+import { FileText, FileType, Link2 } from "lucide-react";
 import { useMemo } from "react";
 import { useNavigate, useParams } from "react-router";
 
@@ -359,9 +359,10 @@ export const InformeOperativo = () => {
                     <td className="px-4 py-2">
                       <a
                         href="#"
-                        className="text-brand-600 underline decoration-brand-300 underline-offset-2 hover:text-brand-700"
+                        className="inline-flex items-center justify-center rounded-md p-1.5 text-brand-600 transition-colors hover:bg-brand-100 hover:text-brand-700"
+                        aria-label={`Abrir enlace de ${item}`}
                       >
-                        Abrir enlace
+                        <Link2 className="h-4 w-4" />
                       </a>
                     </td>
                     <td className="px-4 py-2 text-text-strong">COMPLETADO</td>
