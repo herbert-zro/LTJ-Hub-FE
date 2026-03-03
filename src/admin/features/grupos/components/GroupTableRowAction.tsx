@@ -14,16 +14,28 @@ type GroupTableRowActionProps = {
 };
 
 export const GroupTableRowAction = ({
+  onView,
   onOperationalReport,
   onDiscResult,
   onEmail,
 
+  viewLabel,
   operationalReportLabel,
   discResultLabel,
   emailLabel,
 }: GroupTableRowActionProps) => {
   return (
     <div className="flex justify-around gap-1">
+      <Button
+        variant="ghost"
+        size="icon"
+        className="cursor-pointer bg-sky-100 text-sky-700 transition-colors hover:bg-sky-300 hover:text-sky-800"
+        onClick={onView}
+        aria-label={viewLabel}
+      >
+        <Eye className="h-4 w-4" />
+      </Button>
+
       <Button
         variant="ghost"
         size="icon"

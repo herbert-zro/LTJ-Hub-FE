@@ -9,6 +9,7 @@ import { DataTable } from "@/admin/components/data-table/DataTable";
 import type { ColumnDefinition } from "@/admin/components/data-table/types/column-types";
 import { Button } from "@/components/ui/button";
 
+import { CandidatoModalDetails } from "../components/CandidatoModalDetails";
 import { CanditadosForm } from "../components/CanditadosForm";
 import { GrupoFileToolbar } from "../components/GrupoFileToolbar";
 import { GroupTableRowAction } from "../components/GroupTableRowAction";
@@ -89,6 +90,24 @@ const GRUPO_USUARIOS_DATA: GrupoUsuarioRow[] = [
   },
 ];
 
+const GRUPOS_CATALOGO = [
+  { id: 1, nombre: "Grupo Operativo A" },
+  { id: 2, nombre: "Grupo Operativo B" },
+  { id: 3, nombre: "Grupo Comercial" },
+  { id: 4, nombre: "Grupo Talento" },
+  { id: 5, nombre: "Grupo Soporte" },
+  { id: 6, nombre: "Grupo Reclutamiento" },
+  { id: 7, nombre: "Grupo Evaluación" },
+  { id: 8, nombre: "Grupo Analítica" },
+  { id: 9, nombre: "Grupo Innovación" },
+  { id: 10, nombre: "Grupo Regional" },
+] as const;
+
+const formatCorrelativeId = (value: number) =>
+  value.toString().padStart(3, "0");
+
+const isFullyEvaluated = (completado: string) => completado.trim() === "6/6";
+
 export const GrupoCandidatosPage = () => {
   const navigate = useNavigate();
   const { id } = useParams();
@@ -99,6 +118,10 @@ export const GrupoCandidatosPage = () => {
     [],
   );
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
+  const [isDetailsModalOpen, setIsDetailsModalOpen] = useState(false);
+  const [detailsCandidateId, setDetailsCandidateId] = useState<number | null>(
+    null,
+  );
   const headerCheckboxRef = useRef<HTMLInputElement>(null);
 
   const handleSearchChange = useCallback((value: string) => {
@@ -119,6 +142,19 @@ export const GrupoCandidatosPage = () => {
     setIsCreateModalOpen(true);
   }, []);
 
+  const groupName = useMemo(() => {
+    const numericGroupId = Number(id);
+
+    if (!Number.isInteger(numericGroupId)) {
+      return null;
+    }
+
+    return (
+      GRUPOS_CATALOGO.find((group) => group.id === numericGroupId)?.nombre ??
+      null
+    );
+  }, [id]);
+
   const selectedCandidates = useMemo(
     () =>
       GRUPO_USUARIOS_DATA.filter((candidate) =>
@@ -131,6 +167,11 @@ export const GrupoCandidatosPage = () => {
   );
 
   const canCompareCandidates = selectedCandidates.length >= 2;
+
+  const totalCandidates = GRUPO_USUARIOS_DATA.length;
+  const totalFullyEvaluatedCandidates = GRUPO_USUARIOS_DATA.filter(
+    (candidate) => isFullyEvaluated(candidate.completado),
+  ).length;
 
   const handleGoToComparativeChart = useCallback(() => {
     if (!canCompareCandidates) {
@@ -155,12 +196,15 @@ export const GrupoCandidatosPage = () => {
     [id, navigate],
   );
 
-  const handleViewCandidateDetails = useCallback(
-    (userId: number) => {
-      navigate(`/admin/grupos/${id}/candidatos/${userId}`);
-    },
-    [id, navigate],
-  );
+  const handleViewCandidateDetails = useCallback((userId: number) => {
+    setDetailsCandidateId(userId);
+    setIsDetailsModalOpen(true);
+  }, []);
+
+  const handleCloseDetailsModal = useCallback(() => {
+    setIsDetailsModalOpen(false);
+    setDetailsCandidateId(null);
+  }, []);
 
   const filteredData = useMemo(() => {
     const normalizedQuery = searchTerm.trim().toLowerCase();
@@ -172,6 +216,7 @@ export const GrupoCandidatosPage = () => {
     return GRUPO_USUARIOS_DATA.filter((candidate) => {
       return (
         candidate.id.toString().includes(normalizedQuery) ||
+        formatCorrelativeId(candidate.id).includes(normalizedQuery) ||
         candidate.nombre.toLowerCase().includes(normalizedQuery) ||
         candidate.correo.toLowerCase().includes(normalizedQuery) ||
         candidate.registrado.toLowerCase().includes(normalizedQuery) ||
@@ -294,6 +339,12 @@ export const GrupoCandidatosPage = () => {
         ),
       },
       {
+        key: "correlativeId",
+        header: "ID",
+        className: "w-[90px]",
+        cell: (row) => formatCorrelativeId(row.id),
+      },
+      {
         key: "nombre",
         header: "NOMBRE",
         className: "w-[220px]",
@@ -356,8 +407,8 @@ export const GrupoCandidatosPage = () => {
       <div className="mb-4 rounded-xl border bg-white p-4">
         <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
           <AdminTitle
-            title="Candidatos"
-            subtitle="Listado de candidatos asociados al grupo seleccionado."
+            title={groupName ? `Candidatos - ${groupName}` : "Candidatos"}
+            subtitle={`Total de candidatos: ${totalCandidates}\nCandidatos evaluados : ${totalFullyEvaluatedCandidates}`}
           />
           <div className="flex flex-col gap-2 sm:flex-row sm:items-center">
             <Button
@@ -427,6 +478,32 @@ export const GrupoCandidatosPage = () => {
             className="max-h-[88vh] w-full max-w-3xl"
           >
             <CanditadosForm onRequestClose={handleCloseCreateModal} />
+          </div>
+        </div>
+      )}
+
+      {isDetailsModalOpen && (
+        <div className="fixed inset-0 z-50 flex items-start justify-center overflow-y-auto bg-black/50 p-3 sm:p-4">
+          <div
+            role="dialog"
+            aria-modal="true"
+            aria-label="Detalle del candidato"
+            className="my-4 w-full max-w-2xl"
+          >
+            <div className="max-h-[82vh] space-y-3 overflow-y-auto rounded-xl border bg-white p-4 shadow-sm">
+              <div className="flex justify-end">
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={handleCloseDetailsModal}
+                  className="border-corp-gray-200 bg-surface-card text-corp-gray-600 hover:bg-brand-100 hover:text-brand-500"
+                >
+                  Cerrar
+                </Button>
+              </div>
+
+              <CandidatoModalDetails candidateId={detailsCandidateId} />
+            </div>
           </div>
         </div>
       )}

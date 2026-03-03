@@ -1,6 +1,7 @@
 import { AdminTitle } from "@/admin/components/AdminTitle";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
 import {
   Select,
   SelectContent,
@@ -9,21 +10,27 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { FileText, FileType, Link2 } from "lucide-react";
-import { useMemo } from "react";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { FileText, FileType, Link2, Plus } from "lucide-react";
+import { useMemo, useState } from "react";
 import { useNavigate, useParams } from "react-router";
 
-type ReportFactor = {
+import { AgregarPruebaModalForm } from "./AgregarPruebaModalForm";
+import { CapacidadIntelectual } from "./CapacidadIntelectual";
+import { ComportamientoEnTrabajo } from "./ComportamientoEnTrabajo";
+import { Personalidad } from "./Personalidad";
+
+export type ReportFactor = {
   factor: string;
   seleccion: string;
 };
 
-type ReportSection = {
+export type ReportSection = {
   title: string;
   factors: ReportFactor[];
 };
 
-type ReportUser = {
+export type ReportUser = {
   id: number;
   nombre: string;
   correo: string;
@@ -33,7 +40,368 @@ type ReportUser = {
   sections: ReportSection[];
 };
 
-const REPORT_USERS: ReportUser[] = [
+export type ReportEvaluationAttempt = {
+  id: number;
+  candidateId: number;
+  evaluationType: string;
+  score: number;
+  createdAt: string;
+};
+
+export type EvaluationAttemptSortBy = "score" | "createdAt";
+
+type EvaluationAttemptQueryOptions = {
+  evaluationType?: string;
+  generationDate?: string;
+  minScore?: number;
+  sortBy?: EvaluationAttemptSortBy;
+};
+
+export const REPORT_EVALUATION_ATTEMPTS: ReportEvaluationAttempt[] = [
+  {
+    id: 1,
+    candidateId: 1,
+    evaluationType: "TCG",
+    score: 82,
+    createdAt: "2026-02-10 09:00:00",
+  },
+  {
+    id: 2,
+    candidateId: 1,
+    evaluationType: "TCG",
+    score: 88,
+    createdAt: "2026-02-12 11:20:00",
+  },
+  {
+    id: 3,
+    candidateId: 1,
+    evaluationType: "CI - VERSION D",
+    score: 76,
+    createdAt: "2026-02-13 10:10:00",
+  },
+  {
+    id: 4,
+    candidateId: 1,
+    evaluationType: "TP1",
+    score: 64,
+    createdAt: "2026-02-14 00:14:00",
+  },
+  {
+    id: 5,
+    candidateId: 1,
+    evaluationType: "TP1",
+    score: 72,
+    createdAt: "2026-02-16 08:30:00",
+  },
+  {
+    id: 6,
+    candidateId: 1,
+    evaluationType: "TP2",
+    score: 79,
+    createdAt: "2026-02-17 15:45:00",
+  },
+  {
+    id: 7,
+    candidateId: 2,
+    evaluationType: "TCG",
+    score: 70,
+    createdAt: "2026-02-10 10:00:00",
+  },
+  {
+    id: 8,
+    candidateId: 2,
+    evaluationType: "CI - VERSION D",
+    score: 73,
+    createdAt: "2026-02-11 10:00:00",
+  },
+  {
+    id: 9,
+    candidateId: 2,
+    evaluationType: "TP1",
+    score: 68,
+    createdAt: "2026-02-12 10:00:00",
+  },
+  {
+    id: 10,
+    candidateId: 3,
+    evaluationType: "TCG",
+    score: 55,
+    createdAt: "2026-02-09 09:30:00",
+  },
+  {
+    id: 11,
+    candidateId: 4,
+    evaluationType: "TCG",
+    score: 74,
+    createdAt: "2026-02-10 14:00:00",
+  },
+  {
+    id: 12,
+    candidateId: 4,
+    evaluationType: "TP1",
+    score: 77,
+    createdAt: "2026-02-11 14:00:00",
+  },
+  {
+    id: 13,
+    candidateId: 4,
+    evaluationType: "TP2",
+    score: 80,
+    createdAt: "2026-02-12 14:00:00",
+  },
+  {
+    id: 14,
+    candidateId: 5,
+    evaluationType: "TCG",
+    score: 90,
+    createdAt: "2026-02-13 12:00:00",
+  },
+  {
+    id: 15,
+    candidateId: 5,
+    evaluationType: "CI - VERSION D",
+    score: 86,
+    createdAt: "2026-02-14 12:00:00",
+  },
+  {
+    id: 16,
+    candidateId: 5,
+    evaluationType: "TP1",
+    score: 81,
+    createdAt: "2026-02-15 12:00:00",
+  },
+  {
+    id: 17,
+    candidateId: 5,
+    evaluationType: "TP2",
+    score: 84,
+    createdAt: "2026-02-16 12:00:00",
+  },
+  {
+    id: 18,
+    candidateId: 6,
+    evaluationType: "CI - VERSION D",
+    score: 62,
+    createdAt: "2026-02-18 09:00:00",
+  },
+  {
+    id: 19,
+    candidateId: 6,
+    evaluationType: "TP2",
+    score: 65,
+    createdAt: "2026-02-19 09:00:00",
+  },
+  {
+    id: 20,
+    candidateId: 7,
+    evaluationType: "TCG",
+    score: 89,
+    createdAt: "2026-02-20 11:00:00",
+  },
+  {
+    id: 21,
+    candidateId: 7,
+    evaluationType: "CI - VERSION D",
+    score: 84,
+    createdAt: "2026-02-21 11:00:00",
+  },
+  {
+    id: 22,
+    candidateId: 7,
+    evaluationType: "TP1",
+    score: 83,
+    createdAt: "2026-02-22 11:00:00",
+  },
+  {
+    id: 23,
+    candidateId: 7,
+    evaluationType: "TP2",
+    score: 85,
+    createdAt: "2026-02-23 11:00:00",
+  },
+  {
+    id: 24,
+    candidateId: 8,
+    evaluationType: "TCG",
+    score: 67,
+    createdAt: "2026-02-24 10:30:00",
+  },
+  {
+    id: 25,
+    candidateId: 8,
+    evaluationType: "TP1",
+    score: 69,
+    createdAt: "2026-02-25 10:30:00",
+  },
+];
+
+const parseDateTime = (value: string) =>
+  new Date(value.replace(" ", "T")).getTime();
+
+const sortEvaluationAttempts = (
+  left: ReportEvaluationAttempt,
+  right: ReportEvaluationAttempt,
+  sortBy: EvaluationAttemptSortBy,
+) => {
+  if (sortBy === "score") {
+    if (right.score !== left.score) {
+      return right.score - left.score;
+    }
+
+    return parseDateTime(right.createdAt) - parseDateTime(left.createdAt);
+  }
+
+  const dateDiff =
+    parseDateTime(right.createdAt) - parseDateTime(left.createdAt);
+
+  if (dateDiff !== 0) {
+    return dateDiff;
+  }
+
+  return right.score - left.score;
+};
+
+export const appendEvaluationAttempt = (
+  attempts: ReportEvaluationAttempt[],
+  nextAttempt: ReportEvaluationAttempt,
+) => {
+  return [...attempts, nextAttempt];
+};
+
+export const getCandidateEvaluationAttempts = (
+  candidateId: number,
+  evaluationType: string,
+  options?: Omit<EvaluationAttemptQueryOptions, "evaluationType">,
+) => {
+  const queryOptions: EvaluationAttemptQueryOptions = {
+    ...options,
+    evaluationType,
+  };
+
+  return REPORT_EVALUATION_ATTEMPTS.filter((attempt) => {
+    if (attempt.candidateId !== candidateId) {
+      return false;
+    }
+
+    if (
+      queryOptions.evaluationType &&
+      attempt.evaluationType !== queryOptions.evaluationType
+    ) {
+      return false;
+    }
+
+    if (
+      queryOptions.generationDate &&
+      !attempt.createdAt.startsWith(queryOptions.generationDate)
+    ) {
+      return false;
+    }
+
+    if (
+      queryOptions.minScore !== undefined &&
+      attempt.score < queryOptions.minScore
+    ) {
+      return false;
+    }
+
+    return true;
+  }).sort((a, b) =>
+    sortEvaluationAttempts(a, b, queryOptions.sortBy ?? "score"),
+  );
+};
+
+const PERSONALIDAD_FACTORS = [
+  "Ascendencia",
+  "Estabilidad Emocional",
+  "Autoestima",
+  "Vitalidad",
+  "Responsabilidad",
+  "Resultados",
+  "Reconocimiento",
+  "Independencia",
+  "Variedad",
+  "Benevolencia",
+  "Cautela",
+  "Originalidad",
+  "Practicidad",
+  "Decision",
+  "Orden",
+  "Metas",
+  "Sociabilidad",
+  "Comprension",
+  "Estimulo",
+  "Conformidad",
+  "Liderazgo",
+];
+
+const addDaysToDate = (date: string, daysToAdd: number) => {
+  const [dayPart, monthPart, yearPart] = date.split("-").map(Number);
+
+  if (!dayPart || !monthPart || !yearPart) {
+    return date;
+  }
+
+  const nextDate = new Date(yearPart, monthPart - 1, dayPart + daysToAdd);
+  const day = `${nextDate.getDate()}`.padStart(2, "0");
+  const month = `${nextDate.getMonth() + 1}`.padStart(2, "0");
+  const year = `${nextDate.getFullYear()}`;
+
+  return `${day}-${month}-${year}`;
+};
+
+const createPersonalidadSection = (date: string, basePercentile: number) => ({
+  title: "Personalidad",
+  factors: PERSONALIDAD_FACTORS.map((factor, index) => {
+    const percentile = Math.min(
+      99,
+      Math.max(1, basePercentile + ((index * 7) % 31) - 15),
+    );
+    const factorDate = addDaysToDate(date, index % 6);
+
+    return {
+      factor,
+      seleccion: `${percentile} | ${factorDate}`,
+    };
+  }),
+});
+
+const getSelectionScore = (selection: string) =>
+  selection.split("|")[0]?.trim();
+
+const distributeSectionDates = (users: ReportUser[]) => {
+  const sectionTitles = new Set([
+    "Capacidad Intelectual",
+    "Comportamiento en el Trabajo",
+  ]);
+
+  users.forEach((user) => {
+    user.sections.forEach((section) => {
+      if (!sectionTitles.has(section.title)) {
+        return;
+      }
+
+      const baseDate = section.factors
+        .map((factor) => factor.seleccion.split("|")[1]?.trim())
+        .find((dateValue) => dateValue && dateValue.length > 0);
+
+      if (!baseDate) {
+        return;
+      }
+
+      section.factors = section.factors.map((factor, index) => {
+        const scorePart = getSelectionScore(factor.seleccion) ?? "";
+        const distributedDate = addDaysToDate(baseDate, index % 5);
+
+        return {
+          ...factor,
+          seleccion: `${scorePart} | ${distributedDate}`,
+        };
+      });
+    });
+  });
+};
+
+export const REPORT_USERS: ReportUser[] = [
   {
     id: 1,
     nombre: "Ana Martínez",
@@ -49,6 +417,7 @@ const REPORT_USERS: ReportUser[] = [
           { factor: "Concepción Espacial", seleccion: "20 | 15-02-2026" },
           { factor: "Razonamiento", seleccion: "63 | 15-02-2026" },
           { factor: "Habilidad Numérica", seleccion: "91 | 15-02-2026" },
+          { factor: "Fluidez Verbal", seleccion: "74 | 15-02-2026" },
         ],
       },
       {
@@ -60,6 +429,7 @@ const REPORT_USERS: ReportUser[] = [
           { factor: "Cumplimiento", seleccion: "83 | 15-02-2026" },
         ],
       },
+      createPersonalidadSection("15-02-2026", 66),
     ],
   },
   {
@@ -76,8 +446,10 @@ const REPORT_USERS: ReportUser[] = [
           { factor: "Comprensión Verbal", seleccion: "44 | 16-02-2026" },
           { factor: "Concepción Espacial", seleccion: "57 | 16-02-2026" },
           { factor: "Razonamiento", seleccion: "61 | 16-02-2026" },
+          { factor: "Fluidez Verbal", seleccion: "49 | 16-02-2026" },
         ],
       },
+      createPersonalidadSection("16-02-2026", 59),
     ],
   },
   {
@@ -92,8 +464,10 @@ const REPORT_USERS: ReportUser[] = [
         title: "Capacidad Intelectual",
         factors: [
           { factor: "Comprensión Verbal", seleccion: "25 | 12-02-2026" },
+          { factor: "Fluidez Verbal", seleccion: "33 | 12-02-2026" },
         ],
       },
+      createPersonalidadSection("12-02-2026", 46),
     ],
   },
   {
@@ -110,6 +484,7 @@ const REPORT_USERS: ReportUser[] = [
           { factor: "Comprensión Verbal", seleccion: "39 | 18-02-2026" },
           { factor: "Concepción Espacial", seleccion: "48 | 18-02-2026" },
           { factor: "Razonamiento", seleccion: "52 | 18-02-2026" },
+          { factor: "Fluidez Verbal", seleccion: "57 | 18-02-2026" },
         ],
       },
       {
@@ -121,6 +496,7 @@ const REPORT_USERS: ReportUser[] = [
           { factor: "Cumplimiento", seleccion: "69 | 18-02-2026" },
         ],
       },
+      createPersonalidadSection("18-02-2026", 63),
     ],
   },
   {
@@ -138,6 +514,7 @@ const REPORT_USERS: ReportUser[] = [
           { factor: "Concepción Espacial", seleccion: "63 | 19-02-2026" },
           { factor: "Razonamiento", seleccion: "71 | 19-02-2026" },
           { factor: "Habilidad Numérica", seleccion: "76 | 19-02-2026" },
+          { factor: "Fluidez Verbal", seleccion: "68 | 19-02-2026" },
         ],
       },
       {
@@ -149,6 +526,7 @@ const REPORT_USERS: ReportUser[] = [
           { factor: "Cumplimiento", seleccion: "77 | 19-02-2026" },
         ],
       },
+      createPersonalidadSection("19-02-2026", 72),
     ],
   },
   {
@@ -165,6 +543,7 @@ const REPORT_USERS: ReportUser[] = [
           { factor: "Comprensión Verbal", seleccion: "31 | 20-02-2026" },
           { factor: "Concepción Espacial", seleccion: "42 | 20-02-2026" },
           { factor: "Razonamiento", seleccion: "47 | 20-02-2026" },
+          { factor: "Fluidez Verbal", seleccion: "45 | 20-02-2026" },
         ],
       },
       {
@@ -176,6 +555,7 @@ const REPORT_USERS: ReportUser[] = [
           { factor: "Cumplimiento", seleccion: "63 | 20-02-2026" },
         ],
       },
+      createPersonalidadSection("20-02-2026", 54),
     ],
   },
   {
@@ -193,6 +573,7 @@ const REPORT_USERS: ReportUser[] = [
           { factor: "Concepción Espacial", seleccion: "54 | 21-02-2026" },
           { factor: "Razonamiento", seleccion: "73 | 21-02-2026" },
           { factor: "Habilidad Numérica", seleccion: "79 | 21-02-2026" },
+          { factor: "Fluidez Verbal", seleccion: "72 | 21-02-2026" },
         ],
       },
       {
@@ -204,6 +585,7 @@ const REPORT_USERS: ReportUser[] = [
           { factor: "Cumplimiento", seleccion: "80 | 21-02-2026" },
         ],
       },
+      createPersonalidadSection("21-02-2026", 76),
     ],
   },
   {
@@ -220,6 +602,7 @@ const REPORT_USERS: ReportUser[] = [
           { factor: "Comprensión Verbal", seleccion: "46 | 22-02-2026" },
           { factor: "Concepción Espacial", seleccion: "37 | 22-02-2026" },
           { factor: "Razonamiento", seleccion: "51 | 22-02-2026" },
+          { factor: "Fluidez Verbal", seleccion: "54 | 22-02-2026" },
         ],
       },
       {
@@ -231,17 +614,40 @@ const REPORT_USERS: ReportUser[] = [
           { factor: "Cumplimiento", seleccion: "65 | 22-02-2026" },
         ],
       },
+      createPersonalidadSection("22-02-2026", 57),
     ],
   },
 ];
 
+distributeSectionDates(REPORT_USERS);
+
 export const InformeOperativo = () => {
   const navigate = useNavigate();
   const { id, userId } = useParams();
+  const [activeEvaluationView, setActiveEvaluationView] = useState<
+    "best-score" | "history"
+  >("best-score");
+  const [selectedEvaluationTypeFilter, setSelectedEvaluationTypeFilter] =
+    useState("ALL");
+  const [generationDateFilter, setGenerationDateFilter] = useState("");
+  const [minScoreFilter, setMinScoreFilter] = useState("");
+  const [historySortBy, setHistorySortBy] =
+    useState<EvaluationAttemptSortBy>("score");
+  const [isAddTestModalOpen, setIsAddTestModalOpen] = useState(false);
+  const [activeSectionTab, setActiveSectionTab] = useState<
+    "capacidad-intelectual" | "comportamiento-en-trabajo" | "personalidad"
+  >("capacidad-intelectual");
 
   const getEvaluationDate = (selection: string) => {
     const datePart = selection.split("|")[1]?.trim();
     return datePart && datePart.length > 0 ? datePart : "Sin fecha";
+  };
+
+  const getEvaluationPercentile = (selection: string) => {
+    const percentilePart = selection.split("|")[0]?.trim();
+    return percentilePart && percentilePart.length > 0
+      ? percentilePart
+      : "Sin percentil";
   };
 
   const user = useMemo(() => {
@@ -260,6 +666,118 @@ export const InformeOperativo = () => {
 
   const backPath = id ? `/admin/grupos/${id}/candidatos` : "/admin/grupos";
 
+  const evaluationTypes = useMemo(() => {
+    if (!user) {
+      return [] as string[];
+    }
+
+    return Array.from(
+      new Set(
+        REPORT_EVALUATION_ATTEMPTS.filter(
+          (attempt) => attempt.candidateId === user.id,
+        ).map((attempt) => attempt.evaluationType),
+      ),
+    );
+  }, [user]);
+
+  const bestEvaluationRows = useMemo(() => {
+    if (!user) {
+      return [] as Array<{
+        evaluationType: string;
+        bestScore: number;
+        bestCreatedAt: string;
+        attemptsCount: number;
+      }>;
+    }
+
+    return evaluationTypes
+      .map((evaluationType) => {
+        const attempts = getCandidateEvaluationAttempts(
+          user.id,
+          evaluationType,
+          {
+            sortBy: "score",
+          },
+        );
+        const bestAttempt = attempts[0] ?? null;
+
+        if (!bestAttempt) {
+          return null;
+        }
+
+        return {
+          evaluationType,
+          bestScore: bestAttempt.score,
+          bestCreatedAt: bestAttempt.createdAt,
+          attemptsCount: attempts.length,
+        };
+      })
+      .filter((value): value is NonNullable<typeof value> => value !== null)
+      .sort((left, right) => {
+        if (right.bestScore !== left.bestScore) {
+          return right.bestScore - left.bestScore;
+        }
+
+        return (
+          parseDateTime(right.bestCreatedAt) - parseDateTime(left.bestCreatedAt)
+        );
+      });
+  }, [evaluationTypes, user]);
+
+  const bestOverallEvaluation = bestEvaluationRows[0] ?? null;
+
+  const historyRows = useMemo(() => {
+    if (!user) {
+      return [] as ReportEvaluationAttempt[];
+    }
+
+    const parsedMinScore =
+      minScoreFilter.trim() === "" ? undefined : Number(minScoreFilter);
+    const safeMinScore =
+      parsedMinScore !== undefined && Number.isFinite(parsedMinScore)
+        ? parsedMinScore
+        : undefined;
+
+    return getCandidateEvaluationAttempts(
+      user.id,
+      selectedEvaluationTypeFilter === "ALL"
+        ? ""
+        : selectedEvaluationTypeFilter,
+      {
+        generationDate: generationDateFilter || undefined,
+        minScore: safeMinScore,
+        sortBy: historySortBy,
+      },
+    );
+  }, [
+    generationDateFilter,
+    historySortBy,
+    minScoreFilter,
+    selectedEvaluationTypeFilter,
+    user,
+  ]);
+
+  const capacidadIntelectualSection = useMemo(
+    () =>
+      user?.sections.find(
+        (section) => section.title === "Capacidad Intelectual",
+      ),
+    [user],
+  );
+
+  const comportamientoEnTrabajoSection = useMemo(
+    () =>
+      user?.sections.find(
+        (section) => section.title === "Comportamiento en el Trabajo",
+      ),
+    [user],
+  );
+
+  const personalidadSection = useMemo(
+    () => user?.sections.find((section) => section.title === "Personalidad"),
+    [user],
+  );
+
   if (!user) {
     return (
       <section className="space-y-4">
@@ -275,7 +793,7 @@ export const InformeOperativo = () => {
             <Button
               type="button"
               variant="outline"
-              className="border-corp-gray-200 bg-surface-card text-corp-gray-600 hover:bg-brand-100 hover:text-brand-500"
+              className="cursor-pointer border-corp-gray-200 bg-surface-card text-corp-gray-600 hover:bg-brand-100 hover:text-brand-500"
               onClick={() => navigate(backPath)}
             >
               Volver a candidatos
@@ -305,9 +823,19 @@ export const InformeOperativo = () => {
             <div className="flex w-full flex-wrap items-center justify-center gap-2 sm:w-auto sm:justify-end">
               <Button
                 type="button"
+                size="sm"
+                className="cursor-pointer border border-brand-600/40 bg-brand-500 text-white transition-colors hover:bg-brand-600"
+                onClick={() => setIsAddTestModalOpen(true)}
+              >
+                <Plus className="h-4 w-4" />
+                Agregar prueba
+              </Button>
+
+              <Button
+                type="button"
                 variant="outline"
                 size="sm"
-                className="border-amber-300 bg-surface-card text-amber-700 transition-colors hover:bg-amber-600 hover:text-white"
+                className="cursor-pointer border-amber-300 bg-surface-card text-amber-700 transition-colors hover:bg-amber-600 hover:text-white"
                 onClick={() => console.log("generate pdf", user.id)}
               >
                 <FileText className="h-4 w-4" />
@@ -317,7 +845,7 @@ export const InformeOperativo = () => {
                 type="button"
                 variant="outline"
                 size="sm"
-                className="border-blue-300 bg-surface-card text-blue-600 transition-colors hover:bg-blue-600 hover:text-white"
+                className="cursor-pointer border-blue-300 bg-surface-card text-blue-600 transition-colors hover:bg-blue-600 hover:text-white"
                 onClick={() => console.log("generate word", user.id)}
               >
                 <FileType className="h-4 w-4" />
@@ -329,137 +857,339 @@ export const InformeOperativo = () => {
       </Card>
 
       <Card className="border-corp-gray-200 bg-surface-card shadow-sm">
-        <CardHeader className="pb-2">
-          <CardTitle className="text-lg font-semibold text-text-strong">
-            Tipos de evaluaciones incluidas
-          </CardTitle>
+        <CardHeader className="space-y-3 pb-2">
+          <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+            <CardTitle className="text-lg font-semibold text-text-strong">
+              Evaluaciones del candidato
+            </CardTitle>
+
+            <div className="flex flex-wrap gap-2">
+              <Button
+                type="button"
+                size="sm"
+                variant={
+                  activeEvaluationView === "best-score" ? "default" : "outline"
+                }
+                className={
+                  activeEvaluationView === "best-score"
+                    ? "cursor-pointer border border-brand-600/40 bg-brand-500 text-white hover:bg-brand-600"
+                    : "cursor-pointer border-corp-gray-200 bg-surface-card text-corp-gray-600 hover:bg-brand-100 hover:text-brand-500"
+                }
+                onClick={() => setActiveEvaluationView("best-score")}
+              >
+                Mejor puntaje por evaluación
+              </Button>
+              <Button
+                type="button"
+                size="sm"
+                variant={
+                  activeEvaluationView === "history" ? "default" : "outline"
+                }
+                className={
+                  activeEvaluationView === "history"
+                    ? "cursor-pointer border border-brand-600/40 bg-brand-500 text-white hover:bg-brand-600"
+                    : "cursor-pointer border-corp-gray-200 bg-surface-card text-corp-gray-600 hover:bg-brand-100 hover:text-brand-500"
+                }
+                onClick={() => setActiveEvaluationView("history")}
+              >
+                Histórico de intentos
+              </Button>
+            </div>
+          </div>
+
+          {bestOverallEvaluation && (
+            <p className="text-sm text-corp-gray-600">
+              Mejor evaluación actual: {bestOverallEvaluation.evaluationType}{" "}
+              (puntaje {bestOverallEvaluation.bestScore})
+            </p>
+          )}
         </CardHeader>
-        <CardContent>
+
+        <CardContent className="space-y-3">
+          {activeEvaluationView === "history" && (
+            <div className="grid grid-cols-1 gap-3 md:grid-cols-4">
+              <div className="space-y-1">
+                <p className="text-xs font-medium text-corp-gray-600">
+                  Tipo de evaluación
+                </p>
+                <Select
+                  value={selectedEvaluationTypeFilter}
+                  onValueChange={setSelectedEvaluationTypeFilter}
+                >
+                  <SelectTrigger className="w-full border-corp-gray-200 bg-surface-card text-corp-gray-600 hover:bg-brand-100 focus-visible:border-brand-500 focus-visible:ring-brand-100/60">
+                    <SelectValue placeholder="Todos" />
+                  </SelectTrigger>
+                  <SelectContent className="border-corp-gray-200 bg-surface-card">
+                    <SelectGroup>
+                      <SelectItem
+                        value="ALL"
+                        className="text-corp-gray-600 focus:bg-brand-100 focus:text-brand-500"
+                      >
+                        Todos
+                      </SelectItem>
+                      {evaluationTypes.map((evaluationType) => (
+                        <SelectItem
+                          key={evaluationType}
+                          value={evaluationType}
+                          className="text-corp-gray-600 focus:bg-brand-100 focus:text-brand-500"
+                        >
+                          {evaluationType}
+                        </SelectItem>
+                      ))}
+                    </SelectGroup>
+                  </SelectContent>
+                </Select>
+              </div>
+
+              <div className="space-y-1">
+                <p className="text-xs font-medium text-corp-gray-600">
+                  Fecha de generación
+                </p>
+                <Input
+                  type="date"
+                  value={generationDateFilter}
+                  onChange={(event) =>
+                    setGenerationDateFilter(event.target.value)
+                  }
+                  className="border-corp-gray-200 bg-surface-card text-corp-gray-600 hover:border-corp-gray-400 focus-visible:border-brand-500 focus-visible:ring-brand-100/70"
+                />
+              </div>
+
+              <div className="space-y-1">
+                <p className="text-xs font-medium text-corp-gray-600">
+                  Puntaje mínimo
+                </p>
+                <Input
+                  type="number"
+                  min={0}
+                  value={minScoreFilter}
+                  onChange={(event) => setMinScoreFilter(event.target.value)}
+                  placeholder="Ej: 80"
+                  className="border-corp-gray-200 bg-surface-card text-corp-gray-600 placeholder:text-corp-gray-400 hover:border-corp-gray-400 focus-visible:border-brand-500 focus-visible:ring-brand-100/70"
+                />
+              </div>
+
+              <div className="space-y-1">
+                <p className="text-xs font-medium text-corp-gray-600">
+                  Ordenar por
+                </p>
+                <Select
+                  value={historySortBy}
+                  onValueChange={(value) =>
+                    setHistorySortBy(value as EvaluationAttemptSortBy)
+                  }
+                >
+                  <SelectTrigger className="w-full border-corp-gray-200 bg-surface-card text-corp-gray-600 hover:bg-brand-100 focus-visible:border-brand-500 focus-visible:ring-brand-100/60">
+                    <SelectValue placeholder="Selecciona orden" />
+                  </SelectTrigger>
+                  <SelectContent className="border-corp-gray-200 bg-surface-card">
+                    <SelectGroup>
+                      <SelectItem
+                        value="score"
+                        className="text-corp-gray-600 focus:bg-brand-100 focus:text-brand-500"
+                      >
+                        Puntaje más alto
+                      </SelectItem>
+                      <SelectItem
+                        value="createdAt"
+                        className="text-corp-gray-600 focus:bg-brand-100 focus:text-brand-500"
+                      >
+                        Fecha de generación
+                      </SelectItem>
+                    </SelectGroup>
+                  </SelectContent>
+                </Select>
+              </div>
+            </div>
+          )}
+
           <div className="overflow-x-auto rounded-lg border border-corp-gray-200">
             <table className="min-w-full text-sm">
               <thead className="bg-surface-page text-corp-gray-600">
-                <tr>
-                  <th className="px-4 py-2 text-left font-semibold">
-                    Evaluación
-                  </th>
-                  <th className="px-4 py-2 text-left font-semibold">Enlace</th>
-                  <th className="px-4 py-2 text-left font-semibold">Estado</th>
-                  <th className="px-4 py-2 text-left font-semibold">
-                    Fecha de generación
-                  </th>
-                  <th className="px-4 py-2 text-left font-semibold">
-                    Fecha de vencimiento
-                  </th>
-                </tr>
+                {activeEvaluationView === "best-score" ? (
+                  <tr>
+                    <th className="px-4 py-2 text-left font-semibold">
+                      Evaluación
+                    </th>
+                    <th className="px-4 py-2 text-left font-semibold">
+                      Enlace
+                    </th>
+                    <th className="px-4 py-2 text-left font-semibold">
+                      Mejor puntaje
+                    </th>
+                    <th className="px-4 py-2 text-left font-semibold">
+                      Fecha de generación
+                    </th>
+                    <th className="px-4 py-2 text-left font-semibold">
+                      Intentos acumulados
+                    </th>
+                  </tr>
+                ) : (
+                  <tr>
+                    <th className="px-4 py-2 text-left font-semibold">
+                      Evaluación
+                    </th>
+                    <th className="px-4 py-2 text-left font-semibold">
+                      Puntaje
+                    </th>
+                    <th className="px-4 py-2 text-left font-semibold">
+                      Fecha de generación
+                    </th>
+                  </tr>
+                )}
               </thead>
+
               <tbody>
-                {user.evaluaciones.map((item) => (
-                  <tr key={item} className="border-t border-corp-gray-200">
-                    <td className="px-4 py-2 text-text-strong">{item}</td>
-                    <td className="px-4 py-2">
-                      <a
-                        href="#"
-                        className="inline-flex items-center justify-center rounded-md p-1.5 text-brand-600 transition-colors hover:bg-brand-100 hover:text-brand-700"
-                        aria-label={`Abrir enlace de ${item}`}
+                {activeEvaluationView === "best-score" ? (
+                  bestEvaluationRows.length > 0 ? (
+                    bestEvaluationRows.map((row) => (
+                      <tr
+                        key={row.evaluationType}
+                        className="border-t border-corp-gray-200"
                       >
-                        <Link2 className="h-4 w-4" />
-                      </a>
-                    </td>
-                    <td className="px-4 py-2 text-text-strong">COMPLETADO</td>
-                    <td className="px-4 py-2 text-text-strong">
-                      2026-02-14 00:14:00
-                    </td>
-                    <td className="px-4 py-2 text-text-strong">
-                      2027-02-14 00:14:00
+                        <td className="px-4 py-2 text-text-strong">
+                          {row.evaluationType}
+                        </td>
+                        <td className="px-4 py-2">
+                          <a
+                            href="#"
+                            className="inline-flex items-center justify-center rounded-md p-1.5 text-brand-600 transition-colors hover:bg-brand-100 hover:text-brand-700"
+                            aria-label={`Abrir enlace de ${row.evaluationType}`}
+                          >
+                            <Link2 className="h-4 w-4" />
+                          </a>
+                        </td>
+                        <td className="px-4 py-2 text-text-strong">
+                          {row.bestScore}
+                        </td>
+                        <td className="px-4 py-2 text-text-strong">
+                          {row.bestCreatedAt}
+                        </td>
+                        <td className="px-4 py-2 text-text-strong">
+                          {row.attemptsCount}
+                        </td>
+                      </tr>
+                    ))
+                  ) : (
+                    <tr className="border-t border-corp-gray-200">
+                      <td
+                        colSpan={5}
+                        className="px-4 py-3 text-center text-corp-gray-600"
+                      >
+                        No hay intentos registrados para este candidato.
+                      </td>
+                    </tr>
+                  )
+                ) : historyRows.length > 0 ? (
+                  historyRows.map((attempt) => (
+                    <tr
+                      key={attempt.id}
+                      className="border-t border-corp-gray-200"
+                    >
+                      <td className="px-4 py-2 text-text-strong">
+                        {attempt.evaluationType}
+                      </td>
+                      <td className="px-4 py-2 text-text-strong">
+                        {attempt.score}
+                      </td>
+                      <td className="px-4 py-2 text-text-strong">
+                        {attempt.createdAt}
+                      </td>
+                    </tr>
+                  ))
+                ) : (
+                  <tr className="border-t border-corp-gray-200">
+                    <td
+                      colSpan={3}
+                      className="px-4 py-3 text-center text-corp-gray-600"
+                    >
+                      No hay registros para los filtros aplicados.
                     </td>
                   </tr>
-                ))}
+                )}
               </tbody>
             </table>
           </div>
         </CardContent>
       </Card>
 
-      {user.sections.map((section) => (
-        <Card
-          key={section.title}
-          className="border-corp-gray-200 bg-surface-card shadow-sm"
-        >
-          <CardHeader className="pb-2">
-            <CardTitle className="text-xl font-semibold text-text-strong">
-              {section.title}
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="mb-4 space-y-2">
-              <p className="text-xs text-corp-gray-600">
-                Evaluaciones realizadas
-              </p>
-              <Select
-                defaultValue={getEvaluationDate(
-                  section.factors[0]?.seleccion ?? "",
-                )}
-              >
-                <SelectTrigger className="w-full border-corp-gray-200 bg-surface-card text-corp-gray-600 hover:bg-brand-100 focus-visible:border-brand-500 focus-visible:ring-brand-100/60">
-                  <SelectValue placeholder="Selecciona una fecha" />
-                </SelectTrigger>
-                <SelectContent
-                  align="start"
-                  className="border-corp-gray-200 bg-surface-card"
+      {isAddTestModalOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-3 sm:p-4">
+          <div
+            role="dialog"
+            aria-modal="true"
+            aria-label="Agregar prueba"
+            className="max-h-[88vh] w-full max-w-3xl"
+          >
+            <AgregarPruebaModalForm
+              onRequestClose={() => setIsAddTestModalOpen(false)}
+            />
+          </div>
+        </div>
+      )}
+
+      <Card className="border-corp-gray-200 bg-surface-card shadow-sm">
+        <CardContent className="pt-4">
+          <Tabs
+            value={activeSectionTab}
+            onValueChange={(value) =>
+              setActiveSectionTab(
+                value as
+                  | "capacidad-intelectual"
+                  | "comportamiento-en-trabajo"
+                  | "personalidad",
+              )
+            }
+          >
+            <div className="flex justify-center">
+              <TabsList variant="line" className="mx-auto">
+                <TabsTrigger
+                  value="capacidad-intelectual"
+                  className="cursor-pointer hover:text-brand-500 data-[state=active]:text-brand-500 group-data-[variant=line]/tabs-list:data-[state=active]:after:bg-brand-500"
                 >
-                  <SelectGroup>
-                    {[
-                      ...new Set(
-                        section.factors.map((row) =>
-                          getEvaluationDate(row.seleccion),
-                        ),
-                      ),
-                    ].map((dateValue) => (
-                      <SelectItem
-                        key={`${section.title}-${dateValue}`}
-                        value={dateValue}
-                        className="text-corp-gray-600 focus:bg-brand-100 focus:text-brand-500"
-                      >
-                        {dateValue}
-                      </SelectItem>
-                    ))}
-                  </SelectGroup>
-                </SelectContent>
-              </Select>
+                  Capacidad Intelectual
+                </TabsTrigger>
+                <TabsTrigger
+                  value="comportamiento-en-trabajo"
+                  className="cursor-pointer hover:text-brand-500 data-[state=active]:text-brand-500 group-data-[variant=line]/tabs-list:data-[state=active]:after:bg-brand-500"
+                >
+                  Comportamiento en el Trabajo
+                </TabsTrigger>
+                <TabsTrigger
+                  value="personalidad"
+                  className="cursor-pointer hover:text-brand-500 data-[state=active]:text-brand-500 group-data-[variant=line]/tabs-list:data-[state=active]:after:bg-brand-500"
+                >
+                  Personalidad
+                </TabsTrigger>
+              </TabsList>
             </div>
 
-            <div className="overflow-x-auto rounded-lg border border-corp-gray-200">
-              <table className="min-w-full text-sm">
-                <thead className="bg-surface-page text-corp-gray-600">
-                  <tr>
-                    <th className="px-4 py-2 text-left font-semibold">
-                      Factor
-                    </th>
-                    <th className="px-4 py-2 text-left font-semibold">
-                      Selección
-                    </th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {section.factors.map((row) => (
-                    <tr
-                      key={row.factor}
-                      className="border-t border-corp-gray-200"
-                    >
-                      <td className="px-4 py-2 text-text-strong">
-                        {row.factor}
-                      </td>
-                      <td className="px-4 py-2 text-text-strong">
-                        {row.seleccion}
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          </CardContent>
-        </Card>
-      ))}
+            <TabsContent value="capacidad-intelectual" className="mt-4">
+              <CapacidadIntelectual
+                section={capacidadIntelectualSection}
+                getEvaluationDate={getEvaluationDate}
+                getEvaluationPercentile={getEvaluationPercentile}
+              />
+            </TabsContent>
+
+            <TabsContent value="comportamiento-en-trabajo" className="mt-4">
+              <ComportamientoEnTrabajo
+                section={comportamientoEnTrabajoSection}
+                getEvaluationDate={getEvaluationDate}
+                getEvaluationPercentile={getEvaluationPercentile}
+              />
+            </TabsContent>
+
+            <TabsContent value="personalidad" className="mt-4">
+              <Personalidad
+                section={personalidadSection}
+                getEvaluationDate={getEvaluationDate}
+                getEvaluationPercentile={getEvaluationPercentile}
+              />
+            </TabsContent>
+          </Tabs>
+        </CardContent>
+      </Card>
     </section>
   );
 };
