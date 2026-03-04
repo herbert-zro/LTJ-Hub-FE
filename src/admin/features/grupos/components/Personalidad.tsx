@@ -1,15 +1,16 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import { Calendar } from "@/components/ui/calendar";
+import { Field, FieldLabel } from "@/components/ui/field";
 import {
-  Select,
-  SelectContent,
-  SelectGroup,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
 import { useEffect, useMemo, useState } from "react";
-import { FileText, FileType } from "lucide-react";
+import { format } from "date-fns";
+import { CalendarIcon, FileText, FileType, X } from "lucide-react";
+import type { DateRange } from "react-day-picker";
 
 import type { ReportSection } from "./InformeOperativo";
 import { ChartPorTipo } from "./ChartPorTipo";
@@ -20,7 +21,31 @@ type PersonalidadProps = {
   getEvaluationPercentile: (selection: string) => string;
 };
 
-const ALL_DATES_VALUE = "ALL_DATES";
+const toDateInputValue = (date: string) => {
+  const [dayPart, monthPart, yearPart] = date.split("-");
+
+  if (!dayPart || !monthPart || !yearPart) {
+    return "";
+  }
+
+  return `${yearPart}-${monthPart}-${dayPart}`;
+};
+
+const parseReportDate = (date: string) => {
+  const [dayPart, monthPart, yearPart] = date.split("-").map(Number);
+
+  if (!dayPart || !monthPart || !yearPart) {
+    return null;
+  }
+
+  const parsedDate = new Date(yearPart, monthPart - 1, dayPart);
+
+  if (Number.isNaN(parsedDate.getTime())) {
+    return null;
+  }
+
+  return parsedDate;
+};
 
 export const Personalidad = ({
   section,
@@ -46,21 +71,65 @@ export const Personalidad = ({
     ];
   }, [getEvaluationDate, section]);
 
-  const [selectedDate, setSelectedDate] = useState(ALL_DATES_VALUE);
+  const [selectedDateRange, setSelectedDateRange] = useState<
+    DateRange | undefined
+  >();
+
+  const dateLimits = useMemo(() => {
+    const sortedDates = availableDates
+      .map((date) => parseReportDate(date))
+      .filter((item): item is Date => item !== null)
+      .sort((a, b) => a.getTime() - b.getTime());
+
+    return {
+      min: sortedDates[0],
+      max: sortedDates[sortedDates.length - 1],
+    };
+  }, [availableDates]);
 
   const filteredFactors = useMemo(() => {
     if (!section) {
       return [];
     }
 
-    if (selectedDate === ALL_DATES_VALUE || !selectedDate) {
+    if (!selectedDateRange?.from && !selectedDateRange?.to) {
       return section.factors;
     }
 
-    return section.factors.filter(
-      (row) => getEvaluationDate(row.seleccion) === selectedDate,
-    );
-  }, [getEvaluationDate, section, selectedDate]);
+    return section.factors.filter((row) => {
+      const rowDate = parseReportDate(getEvaluationDate(row.seleccion));
+
+      if (!rowDate) {
+        return false;
+      }
+
+      const rowTime = rowDate.getTime();
+      const fromTime = selectedDateRange?.from
+        ? new Date(
+            selectedDateRange.from.getFullYear(),
+            selectedDateRange.from.getMonth(),
+            selectedDateRange.from.getDate(),
+          ).getTime()
+        : null;
+      const toTime = selectedDateRange?.to
+        ? new Date(
+            selectedDateRange.to.getFullYear(),
+            selectedDateRange.to.getMonth(),
+            selectedDateRange.to.getDate(),
+          ).getTime()
+        : null;
+
+      if (fromTime !== null && rowTime < fromTime) {
+        return false;
+      }
+
+      if (toTime !== null && rowTime > toTime) {
+        return false;
+      }
+
+      return true;
+    });
+  }, [getEvaluationDate, section, selectedDateRange]);
 
   const totalPages = useMemo(() => {
     if (filteredFactors.length === 0) {
@@ -78,14 +147,14 @@ export const Personalidad = ({
   }, [currentPage, filteredFactors]);
 
   useEffect(() => {
-    setSelectedDate(ALL_DATES_VALUE);
+    setSelectedDateRange(undefined);
     setCurrentPage(1);
     setSelectedRowKeys([]);
   }, [section?.title]);
 
   useEffect(() => {
     setCurrentPage(1);
-  }, [selectedDate]);
+  }, [selectedDateRange]);
 
   const filteredRowKeys = useMemo(
     () =>
@@ -175,38 +244,74 @@ export const Personalidad = ({
         </CardHeader>
         <CardContent>
           <div className="mb-4 flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
-            <div className="space-y-2">
-              <p className="text-xs text-corp-gray-600">
+            <Field className="w-full min-w-56 space-y-2 sm:w-72">
+              <FieldLabel
+                htmlFor="date-picker-range"
+                className="text-xs text-corp-gray-600"
+              >
                 Evaluaciones realizadas
-              </p>
-              <Select value={selectedDate} onValueChange={setSelectedDate}>
-                <SelectTrigger className="w-full min-w-56 border-corp-gray-200 bg-surface-card text-corp-gray-600 hover:bg-brand-100 focus-visible:border-brand-500 focus-visible:ring-brand-100/60 sm:w-72">
-                  <SelectValue placeholder="Selecciona una fecha" />
-                </SelectTrigger>
-                <SelectContent
-                  align="start"
-                  className="border-corp-gray-200 bg-surface-card"
-                >
-                  <SelectGroup>
-                    <SelectItem
-                      value={ALL_DATES_VALUE}
-                      className="text-corp-gray-600 focus:bg-brand-100 focus:text-brand-500"
-                    >
-                      Todas las fechas
-                    </SelectItem>
-                    {availableDates.map((dateValue) => (
-                      <SelectItem
-                        key={`${section.title}-${dateValue}`}
-                        value={dateValue}
-                        className="text-corp-gray-600 focus:bg-brand-100 focus:text-brand-500"
+              </FieldLabel>
+              <div className="flex w-full flex-col gap-2">
+                <Popover>
+                  <div className="relative">
+                    <PopoverTrigger asChild>
+                      <Button
+                        type="button"
+                        variant="outline"
+                        id="date-picker-range"
+                        className="w-full cursor-pointer justify-start border-corp-gray-200 bg-surface-card px-2.5 pr-9 font-normal text-corp-gray-600 hover:bg-brand-100 hover:text-brand-500"
                       >
-                        {dateValue}
-                      </SelectItem>
-                    ))}
-                  </SelectGroup>
-                </SelectContent>
-              </Select>
-            </div>
+                        <CalendarIcon className="h-4 w-4" />
+                        {selectedDateRange?.from ? (
+                          selectedDateRange.to ? (
+                            <>
+                              {format(selectedDateRange.from, "dd-MM-yyyy")} -{" "}
+                              {format(selectedDateRange.to, "dd-MM-yyyy")}
+                            </>
+                          ) : (
+                            format(selectedDateRange.from, "dd-MM-yyyy")
+                          )
+                        ) : (
+                          <span>Selecciona un rango</span>
+                        )}
+                      </Button>
+                    </PopoverTrigger>
+
+                    {selectedDateRange?.from && (
+                      <Button
+                        type="button"
+                        size="icon"
+                        variant="ghost"
+                        className="absolute top-1/2 right-1 h-7 w-7 -translate-y-1/2 cursor-pointer text-corp-gray-600 hover:bg-brand-100 hover:text-brand-500"
+                        aria-label="Limpiar rango"
+                        onClick={(event) => {
+                          event.stopPropagation();
+                          setSelectedDateRange(undefined);
+                        }}
+                      >
+                        <X className="h-4 w-4" />
+                      </Button>
+                    )}
+                  </div>
+
+                  <PopoverContent className="w-auto p-0" align="start">
+                    <Calendar
+                      mode="range"
+                      defaultMonth={selectedDateRange?.from ?? dateLimits.min}
+                      selected={selectedDateRange}
+                      onSelect={setSelectedDateRange}
+                      numberOfMonths={2}
+                      startMonth={dateLimits.min}
+                      endMonth={dateLimits.max}
+                      disabled={{
+                        before: dateLimits.min,
+                        after: dateLimits.max,
+                      }}
+                    />
+                  </PopoverContent>
+                </Popover>
+              </div>
+            </Field>
 
             <Button
               type="button"

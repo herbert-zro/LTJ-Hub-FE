@@ -1,4 +1,11 @@
-import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip } from "recharts";
+import {
+  PieChart,
+  Pie,
+  Cell,
+  ResponsiveContainer,
+  Tooltip,
+  Legend,
+} from "recharts";
 
 type ChartMetricItem = {
   factor: string;
@@ -10,10 +17,16 @@ type ChartPorTipoProps = {
   sectionTitle: string;
 };
 
-const CHART_COLORS = {
-  progress: "var(--brand-500)",
-  remaining: "var(--corp-gray-200)",
-};
+const FACTOR_COLORS = [
+  "#E044A7",
+  "#744ED2",
+  "#F59E0B",
+  "#2EC4B6",
+  "#38BDF8",
+  "#22C55E",
+  "#FB7185",
+  "#6366F1",
+];
 
 const MAX_SCORE = 100;
 
@@ -25,11 +38,26 @@ export const ChartPorTipo = ({ data, sectionTitle }: ChartPorTipoProps) => {
   const safeProgress = Math.min(MAX_SCORE, Math.max(0, evaluationProgress));
 
   const chartData = [
-    { name: "Promedio", valor: safeProgress, fill: CHART_COLORS.progress },
+    ...data.map((item, index) => {
+      const safePercentil = Math.min(MAX_SCORE, Math.max(0, item.percentil));
+
+      return {
+        name: item.factor,
+        valor:
+          data.length > 0
+            ? Number((safePercentil / data.length).toFixed(2))
+            : 0,
+        porcentaje: Number(safePercentil.toFixed(2)),
+        fill: FACTOR_COLORS[index % FACTOR_COLORS.length],
+        kind: "factor",
+      };
+    }),
     {
-      name: "Restante",
+      name: "Remanente",
       valor: Number((MAX_SCORE - safeProgress).toFixed(2)),
-      fill: CHART_COLORS.remaining,
+      porcentaje: Number((MAX_SCORE - safeProgress).toFixed(2)),
+      fill: "var(--corp-gray-200)",
+      kind: "remaining",
     },
   ];
 
@@ -60,9 +88,21 @@ export const ChartPorTipo = ({ data, sectionTitle }: ChartPorTipoProps) => {
             </Pie>
             <Tooltip
               formatter={(
-                value: number | undefined,
-                name: string | undefined,
-              ) => [`${value ?? 0}%`, name ?? ""]}
+                _value: number | undefined,
+                _name: string | undefined,
+                item,
+              ) => [
+                `${item.payload?.porcentaje ?? 0}%`,
+                item.payload?.kind === "remaining"
+                  ? "No alcanzado"
+                  : (item.payload?.name ?? ""),
+              ]}
+            />
+            <Legend
+              verticalAlign="bottom"
+              align="center"
+              iconType="square"
+              wrapperStyle={{ fontSize: "12px", color: "var(--corp-gray-600)" }}
             />
           </PieChart>
         </ResponsiveContainer>
