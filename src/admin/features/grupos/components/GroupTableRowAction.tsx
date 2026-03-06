@@ -1,27 +1,27 @@
-import { Eye, FileSpreadsheet, Mail, PieChart } from "lucide-react";
+import { CircleUserRound, Eye, FileSpreadsheet, Mail } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 
 type GroupTableRowActionProps = {
   onView: () => void;
   onOperationalReport: () => void;
-  onDiscResult: () => void;
+  onCandidateProfile: () => void;
   onEmail: () => void;
   viewLabel: string;
   operationalReportLabel: string;
-  discResultLabel: string;
+  candidateProfileLabel: string;
   emailLabel: string;
 };
 
 export const GroupTableRowAction = ({
   onView,
   onOperationalReport,
-  onDiscResult,
+  onCandidateProfile,
   onEmail,
 
   viewLabel,
   operationalReportLabel,
-  discResultLabel,
+  candidateProfileLabel,
   emailLabel,
 }: GroupTableRowActionProps) => {
   return (
@@ -32,6 +32,7 @@ export const GroupTableRowAction = ({
         className="cursor-pointer bg-sky-100 text-sky-700 transition-colors hover:bg-sky-300 hover:text-sky-800"
         onClick={onView}
         aria-label={viewLabel}
+        title="Candidato Prevista"
       >
         <Eye className="h-4 w-4" />
       </Button>
@@ -42,6 +43,7 @@ export const GroupTableRowAction = ({
         className="cursor-pointer bg-emerald-100 text-emerald-700 transition-colors hover:bg-emerald-300 hover:text-emerald-800"
         onClick={onOperationalReport}
         aria-label={operationalReportLabel}
+        title="Evaluaciones"
       >
         <FileSpreadsheet className="h-4 w-4" />
       </Button>
@@ -50,10 +52,11 @@ export const GroupTableRowAction = ({
         variant="ghost"
         size="icon"
         className="cursor-pointer bg-violet-100 text-violet-700 transition-colors hover:bg-violet-300 hover:text-violet-800"
-        onClick={onDiscResult}
-        aria-label={discResultLabel}
+        onClick={onCandidateProfile}
+        aria-label={candidateProfileLabel}
+        title="Perfil de Candidato"
       >
-        <PieChart className="h-4 w-4" />
+        <CircleUserRound className="h-4 w-4" />
       </Button>
 
       <Button
@@ -62,6 +65,7 @@ export const GroupTableRowAction = ({
         className="cursor-pointer bg-amber-100 text-amber-700 transition-colors hover:bg-amber-300 hover:text-amber-800"
         onClick={onEmail}
         aria-label={emailLabel}
+        title="Enviar pruebas"
       >
         <Mail className="h-4 w-4" />
       </Button>

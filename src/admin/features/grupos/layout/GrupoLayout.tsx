@@ -9,7 +9,7 @@ export const GrupoLayout = () => {
 
   return (
     <section className="space-y-4">
-      <GrupoNavigation links={links} />
+      {/* <GrupoNavigation links={links} /> */}
 
       <Outlet />
     </section>

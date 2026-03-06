@@ -15,22 +15,49 @@ import type { DateRange } from "react-day-picker";
 import type { ReportSection } from "./InformeOperativo";
 import { ChartBarrasPorTipo } from "./ChartBarrasPorTipo";
 
-type CapacidadIntelectualProps = {
+type HabilidadesMentalesProps = {
   section?: ReportSection;
   getEvaluationDate: (selection: string) => string;
   getEvaluationPercentile: (selection: string) => string;
-  activeEvaluationType?: string | null;
 };
 
-const normalizeEvaluationType = (value: string) =>
-  value.toUpperCase().replace(/\s+/g, "");
+type EvaluationVariantConfig = {
+  key: string;
+  label: string;
+  percentileDelta: number;
+};
 
-const CI_VERSION_FACTOR_TYPES = new Set([
-  "CI-VERSIOND",
-  "CI-VERSIONO",
-  "CI-VERSIONR",
-  "CI-VERSIONB",
-]);
+type EvaluationVariantOption = {
+  key: string;
+  label: string;
+  selection: string;
+};
+
+const CAPACIDAD_INTELECTUAL_FACTORS = [
+  "Comprension Verbal",
+  "Concepcion Espacial",
+  "Razonamiento",
+  "Habilidad Numerica",
+  "Fluidez Verbal",
+];
+
+const normalizeFactor = (value: string) =>
+  value
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .toLowerCase()
+    .trim();
+
+const FACTOR_EVALUATION_VARIANTS_CONFIG: Record<
+  string,
+  EvaluationVariantConfig[]
+> = {
+  razonamiento: [
+    { key: "base", label: "Razonamiento", percentileDelta: 0 },
+    { key: "hl-1", label: "1 HL", percentileDelta: 6 },
+    { key: "thl-2", label: "2 THL", percentileDelta: 12 },
+  ],
+};
 
 const parseReportDate = (date: string) => {
   const [dayPart, monthPart, yearPart] = date.split("-").map(Number);
@@ -48,33 +75,49 @@ const parseReportDate = (date: string) => {
   return parsedDate;
 };
 
-export const CapacidadIntelectual = ({
+const createSelectionWithDelta = (
+  selection: string,
+  percentileDelta: number,
+) => {
+  const [percentileRaw = "", dateRaw = ""] = selection
+    .split("|")
+    .map((part) => part.trim());
+  const percentileValue = Number(percentileRaw);
+
+  if (Number.isNaN(percentileValue)) {
+    return selection;
+  }
+
+  const adjustedPercentile = Math.max(
+    1,
+    Math.min(99, percentileValue + percentileDelta),
+  );
+  return `${adjustedPercentile} | ${dateRaw}`;
+};
+
+export const HabilidadesMentales = ({
   section,
   getEvaluationDate,
   getEvaluationPercentile,
-  activeEvaluationType,
-}: CapacidadIntelectualProps) => {
+}: HabilidadesMentalesProps) => {
   if (!section) {
     return null;
   }
 
-  const fixedFactorsRows = useMemo(() => {
-    const firstSelection = section.factors[0]?.seleccion ?? "";
-    const shouldUseEvaluationTypeAsFactor =
-      !!activeEvaluationType &&
-      CI_VERSION_FACTOR_TYPES.has(
-        normalizeEvaluationType(activeEvaluationType),
-      );
+  const fixedFactorsRows = useMemo(
+    () =>
+      CAPACIDAD_INTELECTUAL_FACTORS.map((factorName) => {
+        const foundFactor = section.factors.find(
+          (row) => normalizeFactor(row.factor) === normalizeFactor(factorName),
+        );
 
-    return [
-      {
-        factor: shouldUseEvaluationTypeAsFactor
-          ? activeEvaluationType
-          : "Capacidad Intelectual",
-        seleccion: firstSelection,
-      },
-    ];
-  }, [activeEvaluationType, section.factors]);
+        return {
+          factor: factorName,
+          seleccion: foundFactor?.seleccion ?? "",
+        };
+      }),
+    [section.factors],
+  );
 
   const availableDates = useMemo(
     () => [
@@ -91,6 +134,9 @@ export const CapacidadIntelectual = ({
     DateRange | undefined
   >();
   const [selectedRowKeys, setSelectedRowKeys] = useState<string[]>([]);
+  const [selectedVariantByRowKey, setSelectedVariantByRowKey] = useState<
+    Record<string, string>
+  >({});
   const [isMetricModalOpen, setIsMetricModalOpen] = useState(false);
 
   const dateLimits = useMemo(() => {
@@ -111,6 +157,7 @@ export const CapacidadIntelectual = ({
 
   useEffect(() => {
     setSelectedRowKeys([]);
+    setSelectedVariantByRowKey({});
   }, [section.title]);
 
   const filteredRows = useMemo(() => {
@@ -153,36 +200,82 @@ export const CapacidadIntelectual = ({
     });
   }, [fixedFactorsRows, getEvaluationDate, selectedDateRange]);
 
-  const filteredRowKeys = useMemo(
-    () =>
-      filteredRows.map(
-        (row) => `${row.factor}-${getEvaluationDate(row.seleccion)}`,
-      ),
-    [filteredRows, getEvaluationDate],
-  );
+  const getRowKey = (row: { factor: string; seleccion: string }) =>
+    `${row.factor}-${getEvaluationDate(row.seleccion)}`;
 
-  const metricChartData = useMemo(
-    () =>
-      filteredRows.map((row) => ({
-        factor: row.factor,
-        percentil: Number(getEvaluationPercentile(row.seleccion)) || 0,
-      })),
-    [filteredRows, getEvaluationPercentile],
+  const evaluationVariantsByRowKey = useMemo(() => {
+    return Object.fromEntries(
+      filteredRows.map((row) => {
+        const normalizedFactor = normalizeFactor(row.factor);
+        const variantsConfig =
+          FACTOR_EVALUATION_VARIANTS_CONFIG[normalizedFactor];
+
+        const options: EvaluationVariantOption[] = variantsConfig
+          ? variantsConfig.map((variant) => ({
+              key: variant.key,
+              label: variant.label,
+              selection: createSelectionWithDelta(
+                row.seleccion,
+                variant.percentileDelta,
+              ),
+            }))
+          : [
+              {
+                key: "base",
+                label: row.factor,
+                selection: row.seleccion,
+              },
+            ];
+
+        return [getRowKey(row), options];
+      }),
+    );
+  }, [filteredRows, getEvaluationDate]);
+
+  const getSelectedVariantOption = (row: {
+    factor: string;
+    seleccion: string;
+  }) => {
+    const rowKey = getRowKey(row);
+    const options = evaluationVariantsByRowKey[rowKey] ?? [
+      {
+        key: "base",
+        label: row.factor,
+        selection: row.seleccion,
+      },
+    ];
+    const selectedVariantKey =
+      selectedVariantByRowKey[rowKey] ?? options[0].key;
+
+    return (
+      options.find((option) => option.key === selectedVariantKey) ?? options[0]
+    );
+  };
+
+  const filteredRowKeys = useMemo(
+    () => filteredRows.map((row) => getRowKey(row)),
+    [filteredRows, getEvaluationDate],
   );
 
   const selectedMetricChartData = useMemo(
     () =>
       filteredRows
-        .filter((row) =>
-          selectedRowKeys.includes(
-            `${row.factor}-${getEvaluationDate(row.seleccion)}`,
-          ),
-        )
+        .filter((row) => selectedRowKeys.includes(getRowKey(row)))
         .map((row) => ({
           factor: row.factor,
-          percentil: Number(getEvaluationPercentile(row.seleccion)) || 0,
+          percentil:
+            Number(
+              getEvaluationPercentile(getSelectedVariantOption(row).selection),
+            ) || 0,
         })),
-    [filteredRows, getEvaluationDate, getEvaluationPercentile, selectedRowKeys],
+    [
+      filteredRows,
+      getEvaluationDate,
+      getEvaluationPercentile,
+      selectedRowKeys,
+      selectedVariantByRowKey,
+      evaluationVariantsByRowKey,
+    ],
   );
 
   const allFilteredSelected =
@@ -213,6 +306,16 @@ export const CapacidadIntelectual = ({
 
       return current.filter((key) => !filteredRowKeys.includes(key));
     });
+  };
+
+  const handleSelectEvaluationVariant = (
+    rowKey: string,
+    variantKey: string,
+  ) => {
+    setSelectedVariantByRowKey((current) => ({
+      ...current,
+      [rowKey]: variantKey,
+    }));
   };
 
   return (
@@ -342,16 +445,95 @@ export const CapacidadIntelectual = ({
                     key={row.factor}
                     className="border-t border-corp-gray-200"
                   >
-                    <td className="px-4 py-2 text-text-strong">{row.factor}</td>
                     <td className="px-4 py-2 text-text-strong">
-                      {getEvaluationPercentile(row.seleccion)}
+                      {(() => {
+                        const rowKey = getRowKey(row);
+                        const options =
+                          evaluationVariantsByRowKey[rowKey] ?? [];
+                        const selectedVariant = getSelectedVariantOption(row);
+                        const baseOption =
+                          options.find((option) => option.key === "base") ??
+                          null;
+                        const secondaryOptions = options.filter(
+                          (option) => option.key !== "base",
+                        );
+                        const isBaseActive =
+                          !baseOption || selectedVariant.key === baseOption.key;
+
+                        return (
+                          <div className="flex items-center gap-1">
+                            {options.length > 1 ? (
+                              <button
+                                type="button"
+                                className={`inline-flex cursor-pointer items-center rounded-full border px-2 py-0.5 text-xs font-semibold transition-colors ${
+                                  isBaseActive
+                                    ? "border-brand-500 bg-brand-100 text-brand-700"
+                                    : "border-corp-gray-200 bg-surface-card text-corp-gray-600 hover:border-brand-300 hover:bg-brand-50 hover:text-brand-600"
+                                }`}
+                                onClick={() =>
+                                  handleSelectEvaluationVariant(
+                                    rowKey,
+                                    baseOption?.key ?? "base",
+                                  )
+                                }
+                              >
+                                {row.factor}
+                              </button>
+                            ) : (
+                              <span
+                                style={
+                                  row.factor === "Razonamiento"
+                                    ? { color: "#744ED2" }
+                                    : undefined
+                                }
+                              >
+                                {row.factor}
+                              </span>
+                            )}
+
+                            {secondaryOptions.length > 0 && (
+                              <div className="ml-1 inline-flex items-center gap-2">
+                                {secondaryOptions.map((option) => {
+                                  const isActive =
+                                    selectedVariant.key === option.key;
+
+                                  return (
+                                    <button
+                                      key={option.key}
+                                      type="button"
+                                      className={`inline-flex cursor-pointer items-center rounded-full border px-2 py-0.5 text-xs font-semibold transition-colors ${
+                                        isActive
+                                          ? "border-brand-500 bg-brand-100 text-brand-700"
+                                          : "border-corp-gray-200 bg-surface-card text-corp-gray-600 hover:border-brand-300 hover:bg-brand-50 hover:text-brand-600"
+                                      }`}
+                                      onClick={() =>
+                                        handleSelectEvaluationVariant(
+                                          rowKey,
+                                          option.key,
+                                        )
+                                      }
+                                    >
+                                      {option.label}
+                                    </button>
+                                  );
+                                })}
+                              </div>
+                            )}
+                          </div>
+                        );
+                      })()}
+                    </td>
+                    <td className="px-4 py-2 text-text-strong">
+                      {getEvaluationPercentile(
+                        getSelectedVariantOption(row).selection,
+                      )}
                     </td>
                     <td className="px-4 py-2 text-text-strong">
                       {getEvaluationDate(row.seleccion)}
                     </td>
                     <td className="px-4 py-2 text-text-strong">
                       {(() => {
-                        const rowKey = `${row.factor}-${getEvaluationDate(row.seleccion)}`;
+                        const rowKey = getRowKey(row);
 
                         return (
                           <input

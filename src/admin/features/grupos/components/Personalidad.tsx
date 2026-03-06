@@ -7,13 +7,14 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useEffect, useMemo, useState } from "react";
 import { format } from "date-fns";
-import { CalendarIcon, FileText, FileType, X } from "lucide-react";
+import { CalendarIcon, X } from "lucide-react";
 import type { DateRange } from "react-day-picker";
 
 import type { ReportSection } from "./InformeOperativo";
-import { ChartPorTipo } from "./ChartPorTipo";
+import { ChartBarrasPorTipo } from "./ChartBarrasPorTipo";
 
 type PersonalidadProps = {
   section?: ReportSection;
@@ -21,15 +22,50 @@ type PersonalidadProps = {
   getEvaluationPercentile: (selection: string) => string;
 };
 
-const toDateInputValue = (date: string) => {
-  const [dayPart, monthPart, yearPart] = date.split("-");
+type PersonalidadTab =
+  | "Dimensiones Personales"
+  | "Aspiraciones"
+  | "Trabajo"
+  | "Intercambios";
 
-  if (!dayPart || !monthPart || !yearPart) {
-    return "";
-  }
-
-  return `${yearPart}-${monthPart}-${dayPart}`;
+const PERSONALIDAD_TAB_FACTORS: Record<PersonalidadTab, string[]> = {
+  "Dimensiones Personales": [
+    "Ascendencia",
+    "Estabilidad Emocional",
+    "Autoestima",
+    "Vitalidad",
+    "Responsabilidad",
+  ],
+  Aspiraciones: [
+    "Resultados",
+    "Reconocimiento",
+    "Independencia",
+    "Variedad",
+    "Benevolencia",
+  ],
+  Trabajo: [
+    "Cautela",
+    "Originalidad",
+    "Practicidad",
+    "Decisión",
+    "Orden",
+    "Metas",
+  ],
+  Intercambios: [
+    "Sociabilidad",
+    "Comprensión",
+    "Estímulo",
+    "Conformidad",
+    "Liderazgo",
+  ],
 };
+
+const normalizeFactorName = (value: string) =>
+  value
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .toLowerCase()
+    .trim();
 
 const parseReportDate = (date: string) => {
   const [dayPart, monthPart, yearPart] = date.split("-").map(Number);
@@ -52,10 +88,11 @@ export const Personalidad = ({
   getEvaluationDate,
   getEvaluationPercentile,
 }: PersonalidadProps) => {
-  const rowsPerPage = 10;
-  const [currentPage, setCurrentPage] = useState(1);
   const [selectedRowKeys, setSelectedRowKeys] = useState<string[]>([]);
   const [isMetricModalOpen, setIsMetricModalOpen] = useState(false);
+  const [activeTab, setActiveTab] = useState<PersonalidadTab>(
+    "Dimensiones Personales",
+  );
 
   const availableDates = useMemo(() => {
     if (!section) {
@@ -131,46 +168,59 @@ export const Personalidad = ({
     });
   }, [getEvaluationDate, section, selectedDateRange]);
 
-  const totalPages = useMemo(() => {
-    if (filteredFactors.length === 0) {
-      return 1;
-    }
+  const filteredFactorsByActiveTab = useMemo(() => {
+    const allowedFactors = new Set(
+      PERSONALIDAD_TAB_FACTORS[activeTab].map((factor) =>
+        normalizeFactorName(factor),
+      ),
+    );
 
-    return Math.max(1, Math.ceil(filteredFactors.length / rowsPerPage));
-  }, [filteredFactors]);
-
-  const paginatedFactors = useMemo(() => {
-    const startIndex = (currentPage - 1) * rowsPerPage;
-    const endIndex = startIndex + rowsPerPage;
-
-    return filteredFactors.slice(startIndex, endIndex);
-  }, [currentPage, filteredFactors]);
+    return filteredFactors.filter((row) =>
+      allowedFactors.has(normalizeFactorName(row.factor)),
+    );
+  }, [activeTab, filteredFactors]);
 
   useEffect(() => {
     setSelectedDateRange(undefined);
-    setCurrentPage(1);
     setSelectedRowKeys([]);
+    setActiveTab("Dimensiones Personales");
   }, [section?.title]);
-
-  useEffect(() => {
-    setCurrentPage(1);
-  }, [selectedDateRange]);
 
   const filteredRowKeys = useMemo(
     () =>
-      filteredFactors.map(
+      filteredFactorsByActiveTab.map(
         (row) => `${row.factor}-${getEvaluationDate(row.seleccion)}`,
       ),
-    [filteredFactors, getEvaluationDate],
+    [filteredFactorsByActiveTab, getEvaluationDate],
   );
 
   const metricChartData = useMemo(
     () =>
-      filteredFactors.map((row) => ({
+      filteredFactorsByActiveTab.map((row) => ({
         factor: row.factor,
         percentil: Number(getEvaluationPercentile(row.seleccion)) || 0,
       })),
-    [filteredFactors, getEvaluationPercentile],
+    [filteredFactorsByActiveTab, getEvaluationPercentile],
+  );
+
+  const selectedMetricChartData = useMemo(
+    () =>
+      filteredFactorsByActiveTab
+        .filter((row) =>
+          selectedRowKeys.includes(
+            `${row.factor}-${getEvaluationDate(row.seleccion)}`,
+          ),
+        )
+        .map((row) => ({
+          factor: row.factor,
+          percentil: Number(getEvaluationPercentile(row.seleccion)) || 0,
+        })),
+    [
+      filteredFactorsByActiveTab,
+      getEvaluationDate,
+      getEvaluationPercentile,
+      selectedRowKeys,
+    ],
   );
 
   const allFilteredSelected =
@@ -215,205 +265,196 @@ export const Personalidad = ({
             <CardTitle className="text-xl font-semibold text-text-strong">
               {section.title}
             </CardTitle>
-
-            <div className="flex items-center gap-2">
-              <Button
-                type="button"
-                size="sm"
-                variant="outline"
-                disabled={!hasAnyRowSelected}
-                className="cursor-pointer border-amber-300 bg-surface-card text-amber-700 hover:bg-amber-600 hover:text-white disabled:cursor-not-allowed disabled:opacity-50"
-                onClick={() => console.log("download pdf", section.title)}
-              >
-                <FileText className="h-4 w-4" />
-                Generar PDF
-              </Button>
-              <Button
-                type="button"
-                size="sm"
-                variant="outline"
-                disabled={!hasAnyRowSelected}
-                className="cursor-pointer border-blue-300 bg-surface-card text-blue-600 hover:bg-blue-600 hover:text-white disabled:cursor-not-allowed disabled:opacity-50"
-                onClick={() => console.log("download word", section.title)}
-              >
-                <FileType className="h-4 w-4" />
-                Generar Word
-              </Button>
-            </div>
           </div>
         </CardHeader>
         <CardContent>
-          <div className="mb-4 flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
-            <Field className="w-full min-w-56 space-y-2 sm:w-72">
-              <FieldLabel
-                htmlFor="date-picker-range"
-                className="text-xs text-corp-gray-600"
-              >
-                Evaluaciones realizadas
-              </FieldLabel>
-              <div className="flex w-full flex-col gap-2">
-                <Popover>
-                  <div className="relative">
-                    <PopoverTrigger asChild>
-                      <Button
-                        type="button"
-                        variant="outline"
-                        id="date-picker-range"
-                        className="w-full cursor-pointer justify-start border-corp-gray-200 bg-surface-card px-2.5 pr-9 font-normal text-corp-gray-600 hover:bg-brand-100 hover:text-brand-500"
-                      >
-                        <CalendarIcon className="h-4 w-4" />
-                        {selectedDateRange?.from ? (
-                          selectedDateRange.to ? (
-                            <>
-                              {format(selectedDateRange.from, "dd-MM-yyyy")} -{" "}
-                              {format(selectedDateRange.to, "dd-MM-yyyy")}
-                            </>
-                          ) : (
-                            format(selectedDateRange.from, "dd-MM-yyyy")
-                          )
-                        ) : (
-                          <span>Selecciona un rango</span>
-                        )}
-                      </Button>
-                    </PopoverTrigger>
-
-                    {selectedDateRange?.from && (
-                      <Button
-                        type="button"
-                        size="icon"
-                        variant="ghost"
-                        className="absolute top-1/2 right-1 h-7 w-7 -translate-y-1/2 cursor-pointer text-corp-gray-600 hover:bg-brand-100 hover:text-brand-500"
-                        aria-label="Limpiar rango"
-                        onClick={(event) => {
-                          event.stopPropagation();
-                          setSelectedDateRange(undefined);
-                        }}
-                      >
-                        <X className="h-4 w-4" />
-                      </Button>
-                    )}
-                  </div>
-
-                  <PopoverContent className="w-auto p-0" align="start">
-                    <Calendar
-                      mode="range"
-                      defaultMonth={selectedDateRange?.from ?? dateLimits.min}
-                      selected={selectedDateRange}
-                      onSelect={setSelectedDateRange}
-                      numberOfMonths={2}
-                      startMonth={dateLimits.min}
-                      endMonth={dateLimits.max}
-                      disabled={{
-                        before: dateLimits.min,
-                        after: dateLimits.max,
-                      }}
-                    />
-                  </PopoverContent>
-                </Popover>
-              </div>
-            </Field>
-
-            <Button
-              type="button"
-              size="sm"
-              variant="outline"
-              className="cursor-pointer border-corp-gray-200 bg-surface-card text-corp-gray-600 hover:bg-brand-100 hover:text-brand-500"
-              onClick={() => setIsMetricModalOpen(true)}
-            >
-              Detalles de Metrica
-            </Button>
-          </div>
-
-          <div className="overflow-x-auto rounded-lg border border-corp-gray-200">
-            <table className="min-w-full text-sm">
-              <thead className="bg-surface-page text-corp-gray-600">
-                <tr>
-                  <th className="px-4 py-2 text-left font-semibold">Factor</th>
-                  <th className="px-4 py-2 text-left font-semibold">
-                    Percentil
-                  </th>
-                  <th className="px-4 py-2 text-left font-semibold">
-                    Fecha de finalización
-                  </th>
-                  <th className="px-4 py-2 text-left font-semibold">
-                    <input
-                      type="checkbox"
-                      checked={allFilteredSelected}
-                      onChange={(event) =>
-                        handleToggleAllFiltered(event.target.checked)
-                      }
-                      className="h-4 w-4 cursor-pointer accent-brand-500"
-                      aria-label="Seleccionar todos los reportes"
-                    />
-                  </th>
-                </tr>
-              </thead>
-              <tbody>
-                {paginatedFactors.map((row) => (
-                  <tr
-                    key={row.factor}
-                    className="border-t border-corp-gray-200"
-                  >
-                    <td className="px-4 py-2 text-text-strong">{row.factor}</td>
-                    <td className="px-4 py-2 text-text-strong">
-                      {getEvaluationPercentile(row.seleccion)}
-                    </td>
-                    <td className="px-4 py-2 text-text-strong">
-                      {getEvaluationDate(row.seleccion)}
-                    </td>
-                    <td className="px-4 py-2 text-text-strong">
-                      {(() => {
-                        const rowKey = `${row.factor}-${getEvaluationDate(row.seleccion)}`;
-
-                        return (
-                          <input
-                            type="checkbox"
-                            checked={selectedRowKeys.includes(rowKey)}
-                            onChange={(event) =>
-                              handleToggleRow(rowKey, event.target.checked)
-                            }
-                            className="h-4 w-4 cursor-pointer accent-brand-500"
-                            aria-label={`Reporte ${row.factor}`}
-                          />
-                        );
-                      })()}
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-
-          <div className="mt-3 flex items-center justify-between gap-2">
-            <p className="text-xs text-corp-gray-600">
-              Página {currentPage} de {totalPages}
-            </p>
-
-            <div className="flex items-center gap-2">
-              <Button
-                type="button"
-                size="sm"
-                variant="outline"
-                disabled={currentPage === 1}
-                className="cursor-pointer border-corp-gray-200 bg-surface-card text-corp-gray-600 hover:bg-brand-100 hover:text-brand-500 disabled:cursor-not-allowed disabled:opacity-50"
-                onClick={() => setCurrentPage((page) => Math.max(1, page - 1))}
-              >
-                Anterior
-              </Button>
-              <Button
-                type="button"
-                size="sm"
-                variant="outline"
-                disabled={currentPage === totalPages}
-                className="cursor-pointer border-corp-gray-200 bg-surface-card text-corp-gray-600 hover:bg-brand-100 hover:text-brand-500 disabled:cursor-not-allowed disabled:opacity-50"
-                onClick={() =>
-                  setCurrentPage((page) => Math.min(totalPages, page + 1))
-                }
-              >
-                Siguiente
-              </Button>
+          <Tabs
+            value={activeTab}
+            onValueChange={(value) => setActiveTab(value as PersonalidadTab)}
+          >
+            <div className="mb-4 flex justify-center">
+              <TabsList variant="line" className="mx-auto">
+                <TabsTrigger
+                  value="Dimensiones Personales"
+                  className="cursor-pointer hover:text-brand-500 data-[state=active]:text-brand-500 group-data-[variant=line]/tabs-list:data-[state=active]:after:bg-brand-500"
+                >
+                  Dimensiones Personales
+                </TabsTrigger>
+                <TabsTrigger
+                  value="Aspiraciones"
+                  className="cursor-pointer hover:text-brand-500 data-[state=active]:text-brand-500 group-data-[variant=line]/tabs-list:data-[state=active]:after:bg-brand-500"
+                >
+                  Aspiraciones
+                </TabsTrigger>
+                <TabsTrigger
+                  value="Trabajo"
+                  className="cursor-pointer hover:text-brand-500 data-[state=active]:text-brand-500 group-data-[variant=line]/tabs-list:data-[state=active]:after:bg-brand-500"
+                >
+                  Trabajo
+                </TabsTrigger>
+                <TabsTrigger
+                  value="Intercambios"
+                  className="cursor-pointer hover:text-brand-500 data-[state=active]:text-brand-500 group-data-[variant=line]/tabs-list:data-[state=active]:after:bg-brand-500"
+                >
+                  Intercambios
+                </TabsTrigger>
+              </TabsList>
             </div>
-          </div>
+
+            <TabsContent value={activeTab} className="mt-0">
+              <div className="mb-4 flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
+                <Field className="w-full min-w-56 space-y-2 sm:w-72">
+                  <FieldLabel
+                    htmlFor="date-picker-range"
+                    className="text-xs text-corp-gray-600"
+                  >
+                    Evaluaciones realizadas
+                  </FieldLabel>
+                  <div className="flex w-full flex-col gap-2">
+                    <Popover>
+                      <div className="relative">
+                        <PopoverTrigger asChild>
+                          <Button
+                            type="button"
+                            variant="outline"
+                            id="date-picker-range"
+                            className="w-full cursor-pointer justify-start border-corp-gray-200 bg-surface-card px-2.5 pr-9 font-normal text-corp-gray-600 hover:bg-brand-100 hover:text-brand-500"
+                          >
+                            <CalendarIcon className="h-4 w-4" />
+                            {selectedDateRange?.from ? (
+                              selectedDateRange.to ? (
+                                <>
+                                  {format(selectedDateRange.from, "dd-MM-yyyy")}{" "}
+                                  - {format(selectedDateRange.to, "dd-MM-yyyy")}
+                                </>
+                              ) : (
+                                format(selectedDateRange.from, "dd-MM-yyyy")
+                              )
+                            ) : (
+                              <span>Selecciona un rango</span>
+                            )}
+                          </Button>
+                        </PopoverTrigger>
+
+                        {selectedDateRange?.from && (
+                          <Button
+                            type="button"
+                            size="icon"
+                            variant="ghost"
+                            className="absolute top-1/2 right-1 h-7 w-7 -translate-y-1/2 cursor-pointer text-corp-gray-600 hover:bg-brand-100 hover:text-brand-500"
+                            aria-label="Limpiar rango"
+                            onClick={(event) => {
+                              event.stopPropagation();
+                              setSelectedDateRange(undefined);
+                            }}
+                          >
+                            <X className="h-4 w-4" />
+                          </Button>
+                        )}
+                      </div>
+
+                      <PopoverContent className="w-auto p-0" align="start">
+                        <Calendar
+                          mode="range"
+                          defaultMonth={
+                            selectedDateRange?.from ?? dateLimits.min
+                          }
+                          selected={selectedDateRange}
+                          onSelect={setSelectedDateRange}
+                          numberOfMonths={2}
+                          startMonth={dateLimits.min}
+                          endMonth={dateLimits.max}
+                          disabled={{
+                            before: dateLimits.min,
+                            after: dateLimits.max,
+                          }}
+                        />
+                      </PopoverContent>
+                    </Popover>
+                  </div>
+                </Field>
+
+                <Button
+                  type="button"
+                  size="sm"
+                  variant="outline"
+                  disabled={!hasAnyRowSelected}
+                  className={`transition-all ${
+                    hasAnyRowSelected
+                      ? "cursor-pointer border-brand-300 bg-brand-50 text-brand-700 shadow-sm hover:border-brand-600 hover:bg-brand-600 hover:text-white hover:shadow-md"
+                      : "cursor-not-allowed border-corp-gray-200 bg-surface-card text-corp-gray-600 opacity-50"
+                  }`}
+                  onClick={() => setIsMetricModalOpen(true)}
+                >
+                  Detalles de Metrica
+                </Button>
+              </div>
+
+              <div className="overflow-x-auto rounded-lg border border-corp-gray-200">
+                <table className="min-w-full text-sm">
+                  <thead className="bg-surface-page text-corp-gray-600">
+                    <tr>
+                      <th className="px-4 py-2 text-left font-semibold">
+                        Factor
+                      </th>
+                      <th className="px-4 py-2 text-left font-semibold">
+                        Percentil
+                      </th>
+                      <th className="px-4 py-2 text-left font-semibold">
+                        Fecha de finalización
+                      </th>
+                      <th className="px-4 py-2 text-left font-semibold">
+                        <input
+                          type="checkbox"
+                          checked={allFilteredSelected}
+                          onChange={(event) =>
+                            handleToggleAllFiltered(event.target.checked)
+                          }
+                          className="h-4 w-4 cursor-pointer accent-brand-500"
+                          aria-label="Seleccionar todos los reportes"
+                        />
+                      </th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {filteredFactorsByActiveTab.map((row) => (
+                      <tr
+                        key={`${row.factor}-${getEvaluationDate(row.seleccion)}`}
+                        className="border-t border-corp-gray-200"
+                      >
+                        <td className="px-4 py-2 text-text-strong">
+                          {row.factor}
+                        </td>
+                        <td className="px-4 py-2 text-text-strong">
+                          {getEvaluationPercentile(row.seleccion)}
+                        </td>
+                        <td className="px-4 py-2 text-text-strong">
+                          {getEvaluationDate(row.seleccion)}
+                        </td>
+                        <td className="px-4 py-2 text-text-strong">
+                          {(() => {
+                            const rowKey = `${row.factor}-${getEvaluationDate(row.seleccion)}`;
+
+                            return (
+                              <input
+                                type="checkbox"
+                                checked={selectedRowKeys.includes(rowKey)}
+                                onChange={(event) =>
+                                  handleToggleRow(rowKey, event.target.checked)
+                                }
+                                className="h-4 w-4 cursor-pointer accent-brand-500"
+                                aria-label={`Reporte ${row.factor}`}
+                              />
+                            );
+                          })()}
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </TabsContent>
+          </Tabs>
         </CardContent>
       </Card>
 
@@ -438,8 +479,8 @@ export const Personalidad = ({
                 </Button>
               </div>
 
-              <ChartPorTipo
-                data={metricChartData}
+              <ChartBarrasPorTipo
+                data={selectedMetricChartData}
                 sectionTitle={section.title}
               />
             </div>

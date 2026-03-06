@@ -10,14 +10,15 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Tabs, TabsContent } from "@/components/ui/tabs";
 import { FileText, FileType, Link2, Plus } from "lucide-react";
-import { useMemo, useState } from "react";
+import { useMemo, useRef, useState } from "react";
 import { useNavigate, useParams } from "react-router";
 
 import { AgregarPruebaModalForm } from "./AgregarPruebaModalForm";
 import { CapacidadIntelectual } from "./CapacidadIntelectual";
 import { ComportamientoEnTrabajo } from "./ComportamientoEnTrabajo";
+import { HabilidadesMentales } from "./HabilidadesMentales";
 import { Personalidad } from "./Personalidad";
 
 export type ReportFactor = {
@@ -48,7 +49,7 @@ export type ReportEvaluationAttempt = {
   createdAt: string;
 };
 
-export type EvaluationAttemptSortBy = "score" | "createdAt";
+export type EvaluationAttemptSortBy = "createdAt" | "finishedAt";
 
 type EvaluationAttemptQueryOptions = {
   evaluationType?: string;
@@ -68,21 +69,21 @@ export const REPORT_EVALUATION_ATTEMPTS: ReportEvaluationAttempt[] = [
   {
     id: 2,
     candidateId: 1,
-    evaluationType: "TCG",
+    evaluationType: "CI-VERSION B",
     score: 88,
     createdAt: "2026-02-12 11:20:00",
   },
   {
     id: 3,
     candidateId: 1,
-    evaluationType: "CI - VERSION D",
+    evaluationType: "CI-VERSION D",
     score: 76,
     createdAt: "2026-02-13 10:10:00",
   },
   {
     id: 4,
     candidateId: 1,
-    evaluationType: "TP1",
+    evaluationType: "AUTO",
     score: 64,
     createdAt: "2026-02-14 00:14:00",
   },
@@ -110,7 +111,7 @@ export const REPORT_EVALUATION_ATTEMPTS: ReportEvaluationAttempt[] = [
   {
     id: 8,
     candidateId: 2,
-    evaluationType: "CI - VERSION D",
+    evaluationType: "CI-VERSION O",
     score: 73,
     createdAt: "2026-02-11 10:00:00",
   },
@@ -148,6 +149,104 @@ export const REPORT_EVALUATION_ATTEMPTS: ReportEvaluationAttempt[] = [
     evaluationType: "TP2",
     score: 80,
     createdAt: "2026-02-12 14:00:00",
+  },
+  {
+    id: 26,
+    candidateId: 2,
+    evaluationType: "AUTO",
+    score: 71,
+    createdAt: "2026-02-13 09:05:00",
+  },
+  {
+    id: 27,
+    candidateId: 2,
+    evaluationType: "CI-VERSION B",
+    score: 69,
+    createdAt: "2026-02-14 09:10:00",
+  },
+  {
+    id: 28,
+    candidateId: 2,
+    evaluationType: "TP2",
+    score: 74,
+    createdAt: "2026-02-15 09:20:00",
+  },
+  {
+    id: 29,
+    candidateId: 3,
+    evaluationType: "AUTO",
+    score: 58,
+    createdAt: "2026-02-10 08:15:00",
+  },
+  {
+    id: 30,
+    candidateId: 3,
+    evaluationType: "CI-VERSION D",
+    score: 60,
+    createdAt: "2026-02-11 08:20:00",
+  },
+  {
+    id: 31,
+    candidateId: 3,
+    evaluationType: "CI-VERSION O",
+    score: 57,
+    createdAt: "2026-02-12 08:30:00",
+  },
+  {
+    id: 32,
+    candidateId: 3,
+    evaluationType: "TP1",
+    score: 62,
+    createdAt: "2026-02-13 08:40:00",
+  },
+  {
+    id: 33,
+    candidateId: 3,
+    evaluationType: "TP2",
+    score: 64,
+    createdAt: "2026-02-14 08:50:00",
+  },
+  {
+    id: 34,
+    candidateId: 4,
+    evaluationType: "AUTO",
+    score: 78,
+    createdAt: "2026-02-13 14:10:00",
+  },
+  {
+    id: 35,
+    candidateId: 4,
+    evaluationType: "CI-VERSION D",
+    score: 75,
+    createdAt: "2026-02-14 14:15:00",
+  },
+  {
+    id: 36,
+    candidateId: 4,
+    evaluationType: "CI-VERSION O",
+    score: 79,
+    createdAt: "2026-02-15 14:25:00",
+  },
+  {
+    id: 37,
+    candidateId: 1,
+    evaluationType: "TCG",
+    score: 85,
+    createdAt: "2026-02-18 09:10:00",
+  },
+  {
+    id: 38,
+    candidateId: 1,
+    evaluationType: "AUTO",
+    score: 67,
+    createdAt: "2026-02-18 10:15:00",
+  },
+  {
+    id: 39,
+    candidateId: 1,
+    evaluationType: "TP1",
+    score: 75,
+    createdAt: "2026-02-18 11:20:00",
   },
   {
     id: 14,
@@ -238,14 +337,59 @@ export const REPORT_EVALUATION_ATTEMPTS: ReportEvaluationAttempt[] = [
 const parseDateTime = (value: string) =>
   new Date(value.replace(" ", "T")).getTime();
 
+const formatDateTime = (timestamp: number) => {
+  const date = new Date(timestamp);
+
+  const year = date.getFullYear();
+  const month = `${date.getMonth() + 1}`.padStart(2, "0");
+  const day = `${date.getDate()}`.padStart(2, "0");
+  const hours = `${date.getHours()}`.padStart(2, "0");
+  const minutes = `${date.getMinutes()}`.padStart(2, "0");
+  const seconds = `${date.getSeconds()}`.padStart(2, "0");
+
+  return `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`;
+};
+
+const getAttemptDurationInMinutes = (attempt: ReportEvaluationAttempt) => {
+  return 20 + (attempt.id % 6) * 7;
+};
+
+const getAttemptFinishedAt = (attempt: ReportEvaluationAttempt) => {
+  const startedAt = parseDateTime(attempt.createdAt);
+  const durationInMinutes = getAttemptDurationInMinutes(attempt);
+
+  return formatDateTime(startedAt + durationInMinutes * 60 * 1000);
+};
+
+const getAttemptFinishedTimestamp = (attempt: ReportEvaluationAttempt) => {
+  const startedAt = parseDateTime(attempt.createdAt);
+  const durationInMinutes = getAttemptDurationInMinutes(attempt);
+
+  return startedAt + durationInMinutes * 60 * 1000;
+};
+
+const formatDurationLabel = (minutes: number) => {
+  const hoursPart = Math.floor(minutes / 60);
+  const minutesPart = minutes % 60;
+
+  if (hoursPart === 0) {
+    return `${minutesPart} min`;
+  }
+
+  return `${hoursPart} h ${minutesPart.toString().padStart(2, "0")} min`;
+};
+
 const sortEvaluationAttempts = (
   left: ReportEvaluationAttempt,
   right: ReportEvaluationAttempt,
   sortBy: EvaluationAttemptSortBy,
 ) => {
-  if (sortBy === "score") {
-    if (right.score !== left.score) {
-      return right.score - left.score;
+  if (sortBy === "finishedAt") {
+    const finishedDiff =
+      getAttemptFinishedTimestamp(right) - getAttemptFinishedTimestamp(left);
+
+    if (finishedDiff !== 0) {
+      return finishedDiff;
     }
 
     return parseDateTime(right.createdAt) - parseDateTime(left.createdAt);
@@ -258,7 +402,7 @@ const sortEvaluationAttempts = (
     return dateDiff;
   }
 
-  return right.score - left.score;
+  return getAttemptFinishedTimestamp(right) - getAttemptFinishedTimestamp(left);
 };
 
 export const appendEvaluationAttempt = (
@@ -306,7 +450,7 @@ export const getCandidateEvaluationAttempts = (
 
     return true;
   }).sort((a, b) =>
-    sortEvaluationAttempts(a, b, queryOptions.sortBy ?? "score"),
+    sortEvaluationAttempts(a, b, queryOptions.sortBy ?? "createdAt"),
   );
 };
 
@@ -407,7 +551,7 @@ export const REPORT_USERS: ReportUser[] = [
     nombre: "Ana Martínez",
     correo: "ana.martinez@correo.com",
     plaza: "Atención al Usuario",
-    evaluaciones: ["TCG", "CI - VERSION D", "TP1", "TP2"],
+    evaluaciones: ["TCG", "AUTO", "CI-VERSION D", "CI-VERSION B", "TP1", "TP2"],
     completado: "4/6",
     sections: [
       {
@@ -437,7 +581,7 @@ export const REPORT_USERS: ReportUser[] = [
     nombre: "Carlos Pérez",
     correo: "carlos.perez@correo.com",
     plaza: "Analista de Operaciones",
-    evaluaciones: ["TCG", "CI - VERSION D", "TP1"],
+    evaluaciones: ["TCG", "AUTO", "CI-VERSION O", "CI-VERSION B", "TP1", "TP2"],
     completado: "3/6",
     sections: [
       {
@@ -457,7 +601,7 @@ export const REPORT_USERS: ReportUser[] = [
     nombre: "Lucía Gómez",
     correo: "lucia.gomez@correo.com",
     plaza: "Asistente de Gestión",
-    evaluaciones: ["TCG"],
+    evaluaciones: ["TCG", "AUTO", "CI-VERSION D", "CI-VERSION O", "TP1", "TP2"],
     completado: "1/6",
     sections: [
       {
@@ -475,7 +619,7 @@ export const REPORT_USERS: ReportUser[] = [
     nombre: "Jorge Ramírez",
     correo: "jorge.ramirez@correo.com",
     plaza: "Supervisor Comercial",
-    evaluaciones: ["TCG", "TP1", "TP2"],
+    evaluaciones: ["TCG", "AUTO", "CI-VERSION D", "CI-VERSION O", "TP1", "TP2"],
     completado: "3/6",
     sections: [
       {
@@ -621,7 +765,53 @@ export const REPORT_USERS: ReportUser[] = [
 
 distributeSectionDates(REPORT_USERS);
 
-export const InformeOperativo = () => {
+type InformeOperativoProps = {
+  candidateId?: number | null;
+  compactMode?: boolean;
+};
+
+type ReportSectionTab =
+  | "capacidad-intelectual"
+  | "habilidades-mentales"
+  | "comportamiento-en-trabajo"
+  | "personalidad";
+
+type ExportFormat = "pdf" | "word";
+
+type ExportFactorGroup = {
+  evaluationType: string;
+  factors: string[];
+};
+
+const EVALUATION_SECTION_TAB_MAP: Record<string, ReportSectionTab> = {
+  TP1: "personalidad",
+  TP2: "personalidad",
+  AUTO: "comportamiento-en-trabajo",
+  TCG: "habilidades-mentales",
+};
+
+const normalizeEvaluationType = (evaluationType: string) =>
+  evaluationType.toUpperCase().replace(/\s+/g, "");
+
+const resolveSectionTabByEvaluationType = (
+  evaluationType: string,
+): ReportSectionTab => {
+  const normalizedEvaluationType = normalizeEvaluationType(evaluationType);
+
+  if (normalizedEvaluationType.startsWith("CI-VERSION")) {
+    return "capacidad-intelectual";
+  }
+
+  return (
+    EVALUATION_SECTION_TAB_MAP[normalizedEvaluationType] ??
+    "capacidad-intelectual"
+  );
+};
+
+export const InformeOperativo = ({
+  candidateId,
+  compactMode = false,
+}: InformeOperativoProps = {}) => {
   const navigate = useNavigate();
   const { id, userId } = useParams();
   const [activeEvaluationView, setActiveEvaluationView] = useState<
@@ -630,13 +820,22 @@ export const InformeOperativo = () => {
   const [selectedEvaluationTypeFilter, setSelectedEvaluationTypeFilter] =
     useState("ALL");
   const [generationDateFilter, setGenerationDateFilter] = useState("");
-  const [minScoreFilter, setMinScoreFilter] = useState("");
   const [historySortBy, setHistorySortBy] =
-    useState<EvaluationAttemptSortBy>("score");
+    useState<EvaluationAttemptSortBy>("createdAt");
   const [isAddTestModalOpen, setIsAddTestModalOpen] = useState(false);
-  const [activeSectionTab, setActiveSectionTab] = useState<
-    "capacidad-intelectual" | "comportamiento-en-trabajo" | "personalidad"
-  >("capacidad-intelectual");
+  const [isExportModalOpen, setIsExportModalOpen] = useState(false);
+  const [exportFormat, setExportFormat] = useState<ExportFormat | null>(null);
+  const [selectedExportFactorKeys, setSelectedExportFactorKeys] = useState<
+    string[]
+  >([]);
+  const [activeSectionTab, setActiveSectionTab] = useState<ReportSectionTab>(
+    "capacidad-intelectual",
+  );
+  const [isDetailSectionVisible, setIsDetailSectionVisible] = useState(false);
+  const [activeDetailEvaluationType, setActiveDetailEvaluationType] = useState<
+    string | null
+  >(null);
+  const detailSectionsRef = useRef<HTMLDivElement | null>(null);
 
   const getEvaluationDate = (selection: string) => {
     const datePart = selection.split("|")[1]?.trim();
@@ -650,7 +849,11 @@ export const InformeOperativo = () => {
       : "Sin percentil";
   };
 
-  const user = useMemo(() => {
+  const resolvedUserId = useMemo(() => {
+    if (candidateId !== undefined && candidateId !== null) {
+      return Number.isInteger(candidateId) ? candidateId : null;
+    }
+
     if (!userId) {
       return null;
     }
@@ -661,8 +864,16 @@ export const InformeOperativo = () => {
       return null;
     }
 
-    return REPORT_USERS.find((item) => item.id === numericUserId) ?? null;
-  }, [userId]);
+    return numericUserId;
+  }, [candidateId, userId]);
+
+  const user = useMemo(() => {
+    if (resolvedUserId === null) {
+      return null;
+    }
+
+    return REPORT_USERS.find((item) => item.id === resolvedUserId) ?? null;
+  }, [resolvedUserId]);
 
   const backPath = id ? `/admin/grupos/${id}/candidatos` : "/admin/grupos";
 
@@ -671,13 +882,7 @@ export const InformeOperativo = () => {
       return [] as string[];
     }
 
-    return Array.from(
-      new Set(
-        REPORT_EVALUATION_ATTEMPTS.filter(
-          (attempt) => attempt.candidateId === user.id,
-        ).map((attempt) => attempt.evaluationType),
-      ),
-    );
+    return Array.from(new Set(user.evaluaciones));
   }, [user]);
 
   const bestEvaluationRows = useMemo(() => {
@@ -686,6 +891,8 @@ export const InformeOperativo = () => {
         evaluationType: string;
         bestScore: number;
         bestCreatedAt: string;
+        bestFinishedAt: string;
+        bestDurationLabel: string;
         attemptsCount: number;
       }>;
     }
@@ -696,47 +903,53 @@ export const InformeOperativo = () => {
           user.id,
           evaluationType,
           {
-            sortBy: "score",
+            sortBy: "createdAt",
           },
         );
         const bestAttempt = attempts[0] ?? null;
 
         if (!bestAttempt) {
-          return null;
+          return {
+            evaluationType,
+            bestScore: 0,
+            bestCreatedAt: "",
+            bestFinishedAt: "",
+            bestDurationLabel: "",
+            attemptsCount: 0,
+          };
         }
 
         return {
           evaluationType,
           bestScore: bestAttempt.score,
           bestCreatedAt: bestAttempt.createdAt,
+          bestFinishedAt: getAttemptFinishedAt(bestAttempt),
+          bestDurationLabel: formatDurationLabel(
+            getAttemptDurationInMinutes(bestAttempt),
+          ),
           attemptsCount: attempts.length,
         };
       })
-      .filter((value): value is NonNullable<typeof value> => value !== null)
       .sort((left, right) => {
-        if (right.bestScore !== left.bestScore) {
-          return right.bestScore - left.bestScore;
+        const rightDate = right.bestCreatedAt
+          ? parseDateTime(right.bestCreatedAt)
+          : 0;
+        const leftDate = left.bestCreatedAt
+          ? parseDateTime(left.bestCreatedAt)
+          : 0;
+
+        if (rightDate !== leftDate) {
+          return rightDate - leftDate;
         }
 
-        return (
-          parseDateTime(right.bestCreatedAt) - parseDateTime(left.bestCreatedAt)
-        );
+        return right.attemptsCount - left.attemptsCount;
       });
   }, [evaluationTypes, user]);
-
-  const bestOverallEvaluation = bestEvaluationRows[0] ?? null;
 
   const historyRows = useMemo(() => {
     if (!user) {
       return [] as ReportEvaluationAttempt[];
     }
-
-    const parsedMinScore =
-      minScoreFilter.trim() === "" ? undefined : Number(minScoreFilter);
-    const safeMinScore =
-      parsedMinScore !== undefined && Number.isFinite(parsedMinScore)
-        ? parsedMinScore
-        : undefined;
 
     return getCandidateEvaluationAttempts(
       user.id,
@@ -745,17 +958,10 @@ export const InformeOperativo = () => {
         : selectedEvaluationTypeFilter,
       {
         generationDate: generationDateFilter || undefined,
-        minScore: safeMinScore,
         sortBy: historySortBy,
       },
     );
-  }, [
-    generationDateFilter,
-    historySortBy,
-    minScoreFilter,
-    selectedEvaluationTypeFilter,
-    user,
-  ]);
+  }, [generationDateFilter, historySortBy, selectedEvaluationTypeFilter, user]);
 
   const capacidadIntelectualSection = useMemo(
     () =>
@@ -764,6 +970,17 @@ export const InformeOperativo = () => {
       ),
     [user],
   );
+
+  const habilidadesMentalesSection = useMemo(() => {
+    if (!capacidadIntelectualSection) {
+      return undefined;
+    }
+
+    return {
+      ...capacidadIntelectualSection,
+      title: "Habilidades Mentales",
+    };
+  }, [capacidadIntelectualSection]);
 
   const comportamientoEnTrabajoSection = useMemo(
     () =>
@@ -778,26 +995,166 @@ export const InformeOperativo = () => {
     [user],
   );
 
+  const getFactorsByEvaluationType = (evaluationType: string) => {
+    const targetSectionTab = resolveSectionTabByEvaluationType(evaluationType);
+
+    if (targetSectionTab === "capacidad-intelectual") {
+      return (
+        capacidadIntelectualSection?.factors.map((factor) => factor.factor) ??
+        []
+      );
+    }
+
+    if (targetSectionTab === "habilidades-mentales") {
+      return (
+        habilidadesMentalesSection?.factors.map((factor) => factor.factor) ?? []
+      );
+    }
+
+    if (targetSectionTab === "comportamiento-en-trabajo") {
+      return (
+        comportamientoEnTrabajoSection?.factors.map(
+          (factor) => factor.factor,
+        ) ?? []
+      );
+    }
+
+    return personalidadSection?.factors.map((factor) => factor.factor) ?? [];
+  };
+
+  const exportFactorGroups = useMemo(() => {
+    return evaluationTypes.map((evaluationType) => ({
+      evaluationType,
+      factors: Array.from(new Set(getFactorsByEvaluationType(evaluationType))),
+    }));
+  }, [
+    capacidadIntelectualSection,
+    comportamientoEnTrabajoSection,
+    evaluationTypes,
+    habilidadesMentalesSection,
+    personalidadSection,
+  ]);
+
+  const allExportFactorKeys = useMemo(
+    () =>
+      exportFactorGroups.flatMap((group) =>
+        group.factors.map((factor) => `${group.evaluationType}::${factor}`),
+      ),
+    [exportFactorGroups],
+  );
+
+  const hasAnyExportFactorSelected = selectedExportFactorKeys.length > 0;
+
+  const handleOpenExportModal = (format: ExportFormat) => {
+    setExportFormat(format);
+    setSelectedExportFactorKeys([]);
+    setIsExportModalOpen(true);
+  };
+
+  const handleToggleExportFactor = (factorKey: string, checked: boolean) => {
+    setSelectedExportFactorKeys((current) => {
+      if (checked) {
+        if (current.includes(factorKey)) {
+          return current;
+        }
+
+        return [...current, factorKey];
+      }
+
+      return current.filter((key) => key !== factorKey);
+    });
+  };
+
+  const handleToggleExportGroup = (
+    group: ExportFactorGroup,
+    checked: boolean,
+  ) => {
+    const groupKeys = group.factors.map(
+      (factor) => `${group.evaluationType}::${factor}`,
+    );
+
+    setSelectedExportFactorKeys((current) => {
+      if (checked) {
+        return Array.from(new Set([...current, ...groupKeys]));
+      }
+
+      return current.filter((key) => !groupKeys.includes(key));
+    });
+  };
+
+  const handleToggleAllExportFactors = (checked: boolean) => {
+    setSelectedExportFactorKeys(checked ? allExportFactorKeys : []);
+  };
+
+  const handleConfirmExport = () => {
+    if (!user || !exportFormat || selectedExportFactorKeys.length === 0) {
+      return;
+    }
+
+    const selectedFactorsByEvaluationType = exportFactorGroups
+      .map((group) => ({
+        evaluationType: group.evaluationType,
+        factors: group.factors.filter((factor) =>
+          selectedExportFactorKeys.includes(
+            `${group.evaluationType}::${factor}`,
+          ),
+        ),
+      }))
+      .filter((group) => group.factors.length > 0);
+
+    console.log(`generate ${exportFormat}`, {
+      userId: user.id,
+      selectedFactorsByEvaluationType,
+    });
+
+    setIsExportModalOpen(false);
+  };
+
+  const handleOpenEvaluationDetails = (evaluationType: string) => {
+    const nextSectionTab = resolveSectionTabByEvaluationType(evaluationType);
+
+    setActiveDetailEvaluationType(evaluationType);
+    setIsDetailSectionVisible(true);
+    setActiveSectionTab(nextSectionTab);
+
+    requestAnimationFrame(() => {
+      detailSectionsRef.current?.scrollIntoView({
+        behavior: "smooth",
+        block: "start",
+      });
+    });
+  };
+
   if (!user) {
     return (
-      <section className="space-y-4">
-        <div className="rounded-xl border bg-white p-4">
-          <AdminTitle
-            title="Informe operativo"
-            subtitle="No se encontró información para el candidato seleccionado."
-          />
-        </div>
+      <section className={compactMode ? "space-y-3" : "space-y-4"}>
+        {!compactMode && (
+          <div className="rounded-xl border bg-white p-4">
+            <AdminTitle
+              title="Informe operativo"
+              subtitle="No se encontró información para el candidato seleccionado."
+            />
+          </div>
+        )}
 
         <Card className="border-corp-gray-200 bg-surface-card shadow-sm">
           <CardContent className="pt-6">
-            <Button
-              type="button"
-              variant="outline"
-              className="cursor-pointer border-corp-gray-200 bg-surface-card text-corp-gray-600 hover:bg-brand-100 hover:text-brand-500"
-              onClick={() => navigate(backPath)}
-            >
-              Volver a candidatos
-            </Button>
+            {!compactMode && (
+              <Button
+                type="button"
+                variant="outline"
+                className="cursor-pointer border-corp-gray-200 bg-surface-card text-corp-gray-600 hover:bg-brand-100 hover:text-brand-500"
+                onClick={() => navigate(backPath)}
+              >
+                Volver a candidatos
+              </Button>
+            )}
+
+            {compactMode && (
+              <p className="text-sm text-corp-gray-600">
+                No se encontró información para el candidato seleccionado.
+              </p>
+            )}
           </CardContent>
         </Card>
       </section>
@@ -805,56 +1162,60 @@ export const InformeOperativo = () => {
   }
 
   return (
-    <section className="space-y-4">
-      <div className="rounded-xl border bg-white p-4">
-        <AdminTitle
-          title={`${user.nombre} - Informe operativo`}
-          subtitle="Resumen integral de evaluaciones y resultados disponibles."
-        />
-      </div>
-
-      <Card className="border-corp-gray-200 bg-surface-card shadow-sm">
-        <CardContent className="py-2">
-          <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-            <p className="text-center text-sm text-corp-gray-600 sm:text-left">
-              Exporta este informe operativo en el formato que necesites.
-            </p>
-
-            <div className="flex w-full flex-wrap items-center justify-center gap-2 sm:w-auto sm:justify-end">
-              <Button
-                type="button"
-                size="sm"
-                className="cursor-pointer border border-brand-600/40 bg-brand-500 text-white transition-colors hover:bg-brand-600"
-                onClick={() => setIsAddTestModalOpen(true)}
-              >
-                <Plus className="h-4 w-4" />
-                Agregar prueba
-              </Button>
-
-              <Button
-                type="button"
-                variant="outline"
-                size="sm"
-                className="cursor-pointer border-amber-300 bg-surface-card text-amber-700 transition-colors hover:bg-amber-600 hover:text-white"
-                onClick={() => console.log("generate pdf", user.id)}
-              >
-                <FileText className="h-4 w-4" />
-                Generar PDF
-              </Button>
-              <Button
-                type="button"
-                variant="outline"
-                size="sm"
-                className="cursor-pointer border-blue-300 bg-surface-card text-blue-600 transition-colors hover:bg-blue-600 hover:text-white"
-                onClick={() => console.log("generate word", user.id)}
-              >
-                <FileType className="h-4 w-4" />
-                Generar Word
-              </Button>
-            </div>
+    <section className={compactMode ? "space-y-3" : "space-y-4"}>
+      {!compactMode && (
+        <>
+          <div className="rounded-xl border bg-white p-4">
+            <AdminTitle
+              title={`${user.nombre} - Informe de Evaluaciones`}
+              subtitle="Resumen integral de evaluaciones y resultados disponibles."
+            />
           </div>
-        </CardContent>
-      </Card>
+
+          <Card className="border-corp-gray-200 bg-surface-card shadow-sm">
+            <CardContent className="py-2">
+              <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+                <p className="text-center text-sm text-corp-gray-600 sm:text-left">
+                  Exporta este informe operativo en el formato que necesites.
+                </p>
+
+                <div className="flex w-full flex-wrap items-center justify-center gap-2 sm:w-auto sm:justify-end">
+                  <Button
+                    type="button"
+                    size="sm"
+                    className="cursor-pointer border border-brand-600/40 bg-brand-500 text-white transition-colors hover:bg-brand-600"
+                    onClick={() => setIsAddTestModalOpen(true)}
+                  >
+                    <Plus className="h-4 w-4" />
+                    Agregar prueba
+                  </Button>
+
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    className="cursor-pointer border-amber-300 bg-surface-card text-amber-700 transition-colors hover:bg-amber-600 hover:text-white"
+                    onClick={() => handleOpenExportModal("pdf")}
+                  >
+                    <FileText className="h-4 w-4" />
+                    Generar PDF
+                  </Button>
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    className="cursor-pointer border-blue-300 bg-surface-card text-blue-600 transition-colors hover:bg-blue-600 hover:text-white"
+                    onClick={() => handleOpenExportModal("word")}
+                  >
+                    <FileType className="h-4 w-4" />
+                    Generar Word
+                  </Button>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        </>
+      )}
 
       <Card className="border-corp-gray-200 bg-surface-card shadow-sm">
         <CardHeader className="space-y-3 pb-2">
@@ -863,7 +1224,7 @@ export const InformeOperativo = () => {
               Evaluaciones del candidato
             </CardTitle>
 
-            <div className="flex flex-wrap gap-2">
+            <div className="flex w-full flex-col gap-2 sm:w-auto sm:flex-row sm:flex-wrap">
               <Button
                 type="button"
                 size="sm"
@@ -877,7 +1238,7 @@ export const InformeOperativo = () => {
                 }
                 onClick={() => setActiveEvaluationView("best-score")}
               >
-                Mejor puntaje por evaluación
+                Evaluación más reciente
               </Button>
               <Button
                 type="button"
@@ -897,17 +1258,17 @@ export const InformeOperativo = () => {
             </div>
           </div>
 
-          {bestOverallEvaluation && (
+          {/* {bestOverallEvaluation && (
             <p className="text-sm text-corp-gray-600">
               Mejor evaluación actual: {bestOverallEvaluation.evaluationType}{" "}
               (puntaje {bestOverallEvaluation.bestScore})
             </p>
-          )}
+          )} */}
         </CardHeader>
 
         <CardContent className="space-y-3">
           {activeEvaluationView === "history" && (
-            <div className="grid grid-cols-1 gap-3 md:grid-cols-4">
+            <div className="grid grid-cols-1 gap-3 md:grid-cols-3">
               <div className="space-y-1">
                 <p className="text-xs font-medium text-corp-gray-600">
                   Tipo de evaluación
@@ -957,20 +1318,6 @@ export const InformeOperativo = () => {
 
               <div className="space-y-1">
                 <p className="text-xs font-medium text-corp-gray-600">
-                  Puntaje mínimo
-                </p>
-                <Input
-                  type="number"
-                  min={0}
-                  value={minScoreFilter}
-                  onChange={(event) => setMinScoreFilter(event.target.value)}
-                  placeholder="Ej: 80"
-                  className="border-corp-gray-200 bg-surface-card text-corp-gray-600 placeholder:text-corp-gray-400 hover:border-corp-gray-400 focus-visible:border-brand-500 focus-visible:ring-brand-100/70"
-                />
-              </div>
-
-              <div className="space-y-1">
-                <p className="text-xs font-medium text-corp-gray-600">
                   Ordenar por
                 </p>
                 <Select
@@ -985,16 +1332,16 @@ export const InformeOperativo = () => {
                   <SelectContent className="border-corp-gray-200 bg-surface-card">
                     <SelectGroup>
                       <SelectItem
-                        value="score"
-                        className="text-corp-gray-600 focus:bg-brand-100 focus:text-brand-500"
-                      >
-                        Puntaje más alto
-                      </SelectItem>
-                      <SelectItem
                         value="createdAt"
                         className="text-corp-gray-600 focus:bg-brand-100 focus:text-brand-500"
                       >
                         Fecha de generación
+                      </SelectItem>
+                      <SelectItem
+                        value="finishedAt"
+                        className="text-corp-gray-600 focus:bg-brand-100 focus:text-brand-500"
+                      >
+                        Fecha de finalización
                       </SelectItem>
                     </SelectGroup>
                   </SelectContent>
@@ -1015,14 +1362,18 @@ export const InformeOperativo = () => {
                       Enlace
                     </th>
                     <th className="px-4 py-2 text-left font-semibold">
-                      Mejor puntaje
+                      Fecha de generación
                     </th>
                     <th className="px-4 py-2 text-left font-semibold">
-                      Fecha de generación
+                      Fecha de finalización
+                    </th>
+                    <th className="px-4 py-2 text-left font-semibold">
+                      Tiempo de prueba
                     </th>
                     <th className="px-4 py-2 text-left font-semibold">
                       Intentos acumulados
                     </th>
+                    <th className="px-4 py-2 text-left font-semibold"></th>
                   </tr>
                 ) : (
                   <tr>
@@ -1030,11 +1381,18 @@ export const InformeOperativo = () => {
                       Evaluación
                     </th>
                     <th className="px-4 py-2 text-left font-semibold">
-                      Puntaje
+                      Enlace
                     </th>
                     <th className="px-4 py-2 text-left font-semibold">
                       Fecha de generación
                     </th>
+                    <th className="px-4 py-2 text-left font-semibold">
+                      Fecha de finalización
+                    </th>
+                    <th className="px-4 py-2 text-left font-semibold">
+                      Tiempo de prueba
+                    </th>
+                    <th className="px-4 py-2 text-left font-semibold"></th>
                   </tr>
                 )}
               </thead>
@@ -1060,20 +1418,44 @@ export const InformeOperativo = () => {
                           </a>
                         </td>
                         <td className="px-4 py-2 text-text-strong">
-                          {row.bestScore}
+                          {row.bestCreatedAt || "-"}
                         </td>
                         <td className="px-4 py-2 text-text-strong">
-                          {row.bestCreatedAt}
+                          {row.bestFinishedAt || "-"}
+                        </td>
+                        <td className="px-4 py-2 text-text-strong">
+                          {row.bestDurationLabel || "-"}
                         </td>
                         <td className="px-4 py-2 text-text-strong">
                           {row.attemptsCount}
+                        </td>
+                        <td className="px-4 py-2">
+                          <Button
+                            type="button"
+                            size="sm"
+                            variant={
+                              activeDetailEvaluationType === row.evaluationType
+                                ? "default"
+                                : "outline"
+                            }
+                            className={
+                              activeDetailEvaluationType === row.evaluationType
+                                ? "cursor-pointer border border-brand-600/40 bg-brand-500 text-white hover:bg-brand-600"
+                                : "cursor-pointer border-corp-gray-200 bg-surface-card text-corp-gray-600 hover:bg-brand-100 hover:text-brand-500"
+                            }
+                            onClick={() =>
+                              handleOpenEvaluationDetails(row.evaluationType)
+                            }
+                          >
+                            Detalles
+                          </Button>
                         </td>
                       </tr>
                     ))
                   ) : (
                     <tr className="border-t border-corp-gray-200">
                       <td
-                        colSpan={5}
+                        colSpan={7}
                         className="px-4 py-3 text-center text-corp-gray-600"
                       >
                         No hay intentos registrados para este candidato.
@@ -1089,18 +1471,55 @@ export const InformeOperativo = () => {
                       <td className="px-4 py-2 text-text-strong">
                         {attempt.evaluationType}
                       </td>
-                      <td className="px-4 py-2 text-text-strong">
-                        {attempt.score}
+                      <td className="px-4 py-2">
+                        <a
+                          href="#"
+                          className="inline-flex items-center justify-center rounded-md p-1.5 text-brand-600 transition-colors hover:bg-brand-100 hover:text-brand-700"
+                          aria-label={`Abrir enlace de ${attempt.evaluationType}`}
+                        >
+                          <Link2 className="h-4 w-4" />
+                        </a>
                       </td>
                       <td className="px-4 py-2 text-text-strong">
                         {attempt.createdAt}
+                      </td>
+                      <td className="px-4 py-2 text-text-strong">
+                        {getAttemptFinishedAt(attempt)}
+                      </td>
+                      <td className="px-4 py-2 text-text-strong">
+                        {formatDurationLabel(
+                          getAttemptDurationInMinutes(attempt),
+                        )}
+                      </td>
+                      <td className="px-4 py-2">
+                        <Button
+                          type="button"
+                          size="sm"
+                          variant={
+                            activeDetailEvaluationType ===
+                            attempt.evaluationType
+                              ? "default"
+                              : "outline"
+                          }
+                          className={
+                            activeDetailEvaluationType ===
+                            attempt.evaluationType
+                              ? "cursor-pointer border border-brand-600/40 bg-brand-500 text-white hover:bg-brand-600"
+                              : "cursor-pointer border-corp-gray-200 bg-surface-card text-corp-gray-600 hover:bg-brand-100 hover:text-brand-500"
+                          }
+                          onClick={() =>
+                            handleOpenEvaluationDetails(attempt.evaluationType)
+                          }
+                        >
+                          Detalles
+                        </Button>
                       </td>
                     </tr>
                   ))
                 ) : (
                   <tr className="border-t border-corp-gray-200">
                     <td
-                      colSpan={3}
+                      colSpan={6}
                       className="px-4 py-3 text-center text-corp-gray-600"
                     >
                       No hay registros para los filtros aplicados.
@@ -1113,7 +1532,7 @@ export const InformeOperativo = () => {
         </CardContent>
       </Card>
 
-      {isAddTestModalOpen && (
+      {!compactMode && isAddTestModalOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-3 sm:p-4">
           <div
             role="dialog"
@@ -1128,68 +1547,219 @@ export const InformeOperativo = () => {
         </div>
       )}
 
-      <Card className="border-corp-gray-200 bg-surface-card shadow-sm">
-        <CardContent className="pt-4">
-          <Tabs
-            value={activeSectionTab}
-            onValueChange={(value) =>
-              setActiveSectionTab(
-                value as
-                  | "capacidad-intelectual"
-                  | "comportamiento-en-trabajo"
-                  | "personalidad",
-              )
-            }
+      {isExportModalOpen && exportFormat && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-3 sm:p-4">
+          <div
+            role="dialog"
+            aria-modal="true"
+            aria-label="Seleccionar factores para exportar"
+            className="w-full max-w-4xl rounded-xl border border-corp-gray-200 bg-surface-card p-4 shadow-sm"
           >
-            <div className="flex justify-center">
-              <TabsList variant="line" className="mx-auto">
-                <TabsTrigger
-                  value="capacidad-intelectual"
-                  className="cursor-pointer hover:text-brand-500 data-[state=active]:text-brand-500 group-data-[variant=line]/tabs-list:data-[state=active]:after:bg-brand-500"
+            <div className="mb-4 flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+              <div>
+                <h3 className="text-lg font-semibold text-text-strong">
+                  Seleccionar factores para {exportFormat.toUpperCase()}
+                </h3>
+                <p className="text-sm text-corp-gray-600">
+                  Marca los factores que deseas incluir en el archivo.
+                </p>
+              </div>
+
+              <div className="flex items-center gap-2">
+                <Button
+                  type="button"
+                  size="sm"
+                  variant="outline"
+                  className="cursor-pointer border-corp-gray-200 bg-surface-card text-corp-gray-600 hover:bg-brand-100 hover:text-brand-500"
+                  onClick={() =>
+                    handleToggleAllExportFactors(
+                      selectedExportFactorKeys.length !==
+                        allExportFactorKeys.length,
+                    )
+                  }
                 >
-                  Capacidad Intelectual
-                </TabsTrigger>
-                <TabsTrigger
-                  value="comportamiento-en-trabajo"
-                  className="cursor-pointer hover:text-brand-500 data-[state=active]:text-brand-500 group-data-[variant=line]/tabs-list:data-[state=active]:after:bg-brand-500"
+                  {selectedExportFactorKeys.length ===
+                  allExportFactorKeys.length
+                    ? "Deseleccionar todos"
+                    : "Seleccionar todos"}
+                </Button>
+                <Button
+                  type="button"
+                  size="sm"
+                  variant="outline"
+                  className="cursor-pointer border-corp-gray-200 bg-surface-card text-corp-gray-600 hover:bg-brand-100 hover:text-brand-500"
+                  onClick={() => setIsExportModalOpen(false)}
                 >
-                  Comportamiento en el Trabajo
-                </TabsTrigger>
-                <TabsTrigger
-                  value="personalidad"
-                  className="cursor-pointer hover:text-brand-500 data-[state=active]:text-brand-500 group-data-[variant=line]/tabs-list:data-[state=active]:after:bg-brand-500"
-                >
-                  Personalidad
-                </TabsTrigger>
-              </TabsList>
+                  Cerrar
+                </Button>
+              </div>
             </div>
 
-            <TabsContent value="capacidad-intelectual" className="mt-4">
-              <CapacidadIntelectual
-                section={capacidadIntelectualSection}
-                getEvaluationDate={getEvaluationDate}
-                getEvaluationPercentile={getEvaluationPercentile}
-              />
-            </TabsContent>
+            <div className="max-h-[52vh] space-y-3 overflow-y-auto pr-1">
+              {exportFactorGroups.map((group) => {
+                const groupKeys = group.factors.map(
+                  (factor) => `${group.evaluationType}::${factor}`,
+                );
+                const allGroupSelected =
+                  groupKeys.length > 0 &&
+                  groupKeys.every((key) =>
+                    selectedExportFactorKeys.includes(key),
+                  );
 
-            <TabsContent value="comportamiento-en-trabajo" className="mt-4">
-              <ComportamientoEnTrabajo
-                section={comportamientoEnTrabajoSection}
-                getEvaluationDate={getEvaluationDate}
-                getEvaluationPercentile={getEvaluationPercentile}
-              />
-            </TabsContent>
+                return (
+                  <div
+                    key={group.evaluationType}
+                    className="rounded-lg border border-corp-gray-200 bg-surface-page p-3"
+                  >
+                    <div className="mb-2 flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+                      <h4 className="text-sm font-semibold text-text-strong">
+                        {group.evaluationType}
+                      </h4>
+                      <Button
+                        type="button"
+                        size="sm"
+                        variant="outline"
+                        className="cursor-pointer border-corp-gray-200 bg-surface-card text-corp-gray-600 hover:bg-brand-100 hover:text-brand-500"
+                        onClick={() =>
+                          handleToggleExportGroup(group, !allGroupSelected)
+                        }
+                      >
+                        {allGroupSelected
+                          ? "Deseleccionar tipo"
+                          : "Seleccionar tipo"}
+                      </Button>
+                    </div>
 
-            <TabsContent value="personalidad" className="mt-4">
-              <Personalidad
-                section={personalidadSection}
-                getEvaluationDate={getEvaluationDate}
-                getEvaluationPercentile={getEvaluationPercentile}
-              />
-            </TabsContent>
-          </Tabs>
-        </CardContent>
-      </Card>
+                    {group.factors.length === 0 ? (
+                      <p className="text-sm text-corp-gray-600">
+                        Sin factores disponibles para este tipo de evaluación.
+                      </p>
+                    ) : (
+                      <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
+                        {group.factors.map((factor) => {
+                          const factorKey = `${group.evaluationType}::${factor}`;
+
+                          return (
+                            <label
+                              key={factorKey}
+                              className="flex cursor-pointer items-center gap-2 rounded-md border border-corp-gray-200 bg-surface-card px-2 py-1.5 text-sm text-text-strong"
+                            >
+                              <input
+                                type="checkbox"
+                                checked={selectedExportFactorKeys.includes(
+                                  factorKey,
+                                )}
+                                onChange={(event) =>
+                                  handleToggleExportFactor(
+                                    factorKey,
+                                    event.target.checked,
+                                  )
+                                }
+                                className="h-4 w-4 cursor-pointer accent-brand-500"
+                              />
+                              <span>{factor}</span>
+                            </label>
+                          );
+                        })}
+                      </div>
+                    )}
+                  </div>
+                );
+              })}
+            </div>
+
+            <div className="mt-4 flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+              <p className="text-sm text-corp-gray-600">
+                Factores seleccionados: {selectedExportFactorKeys.length}
+              </p>
+
+              <Button
+                type="button"
+                size="sm"
+                disabled={!hasAnyExportFactorSelected}
+                className="cursor-pointer border border-brand-600/40 bg-brand-500 text-white hover:bg-brand-600 disabled:cursor-not-allowed disabled:opacity-50"
+                onClick={handleConfirmExport}
+              >
+                {exportFormat === "pdf" ? "Generar PDF" : "Generar Word"}
+              </Button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {isDetailSectionVisible && (
+        <div ref={detailSectionsRef}>
+          <Card className="border-corp-gray-200 bg-surface-card shadow-sm">
+            <CardContent className="pt-4">
+              <Tabs value={activeSectionTab}>
+                {/*
+                <div className="flex justify-center">
+                  <TabsList variant="line" className="mx-auto">
+                    <TabsTrigger
+                      value="Dimensiones Personales"
+                      className="cursor-pointer hover:text-brand-500 data-[state=active]:text-brand-500 group-data-[variant=line]/tabs-list:data-[state=active]:after:bg-brand-500"
+                    >
+                      Dimensiones Personales
+                    </TabsTrigger>
+                    <TabsTrigger
+                      value="Aspiraciones"
+                      className="cursor-pointer hover:text-brand-500 data-[state=active]:text-brand-500 group-data-[variant=line]/tabs-list:data-[state=active]:after:bg-brand-500"
+                    >
+                      Aspiraciones
+                    </TabsTrigger>
+                    <TabsTrigger
+                      value="Trabajo"
+                      className="cursor-pointer hover:text-brand-500 data-[state=active]:text-brand-500 group-data-[variant=line]/tabs-list:data-[state=active]:after:bg-brand-500"
+                    >
+                      Trabajo
+                    </TabsTrigger>
+                    <TabsTrigger
+                      value="Intercambios"
+                      className="cursor-pointer hover:text-brand-500 data-[state=active]:text-brand-500 group-data-[variant=line]/tabs-list:data-[state=active]:after:bg-brand-500"
+                    >
+                      Intercambios
+                    </TabsTrigger>
+                  </TabsList>
+                </div>
+                */}
+
+                <TabsContent value="capacidad-intelectual" className="mt-4">
+                  <CapacidadIntelectual
+                    section={capacidadIntelectualSection}
+                    getEvaluationDate={getEvaluationDate}
+                    getEvaluationPercentile={getEvaluationPercentile}
+                    activeEvaluationType={activeDetailEvaluationType}
+                  />
+                </TabsContent>
+
+                <TabsContent value="habilidades-mentales" className="mt-4">
+                  <HabilidadesMentales
+                    section={habilidadesMentalesSection}
+                    getEvaluationDate={getEvaluationDate}
+                    getEvaluationPercentile={getEvaluationPercentile}
+                  />
+                </TabsContent>
+
+                <TabsContent value="comportamiento-en-trabajo" className="mt-4">
+                  <ComportamientoEnTrabajo
+                    section={comportamientoEnTrabajoSection}
+                    getEvaluationDate={getEvaluationDate}
+                    getEvaluationPercentile={getEvaluationPercentile}
+                  />
+                </TabsContent>
+
+                <TabsContent value="personalidad" className="mt-4">
+                  <Personalidad
+                    section={personalidadSection}
+                    getEvaluationDate={getEvaluationDate}
+                    getEvaluationPercentile={getEvaluationPercentile}
+                  />
+                </TabsContent>
+              </Tabs>
+            </CardContent>
+          </Card>
+        </div>
+      )}
     </section>
   );
 };

@@ -9,10 +9,10 @@ import { DataTable } from "@/admin/components/data-table/DataTable";
 import type { ColumnDefinition } from "@/admin/components/data-table/types/column-types";
 import { Button } from "@/components/ui/button";
 
-import { CandidatoModalDetails } from "../components/CandidatoModalDetails";
 import { CanditadosForm } from "../components/CanditadosForm";
 import { GrupoFileToolbar } from "../components/GrupoFileToolbar";
 import { GroupTableRowAction } from "../components/GroupTableRowAction";
+import { InformeOperativo } from "../components/InformeOperativo";
 
 type GrupoUsuarioRow = {
   id: number;
@@ -29,32 +29,32 @@ const GRUPO_USUARIOS_DATA: GrupoUsuarioRow[] = [
     nombre: "Ana Martínez",
     correo: "ana.martinez@correo.com",
     registrado: "Sí",
-    evaluaciones: ["TCG", "CI - VERSION D", "TP1", "TP2"],
-    completado: "4/6",
+    evaluaciones: ["TCG", "AUTO", "CI-VERSION D", "CI-VERSIONB", "TP1", "TP2"],
+    completado: "6/6",
   },
   {
     id: 2,
     nombre: "Carlos Pérez",
     correo: "carlos.perez@correo.com",
     registrado: "Sí",
-    evaluaciones: ["TCG", "CI - VERSION D", "TP1"],
-    completado: "3/6",
+    evaluaciones: ["TCG", "AUTO", "CI-VERSION O", "CI-VERSION B", "TP2"],
+    completado: "5/6",
   },
   {
     id: 3,
     nombre: "Lucía Gómez",
     correo: "lucia.gomez@correo.com",
     registrado: "No",
-    evaluaciones: ["TCG"],
-    completado: "1/6",
+    evaluaciones: ["TCG", "AUTO", "CI-VERSION D", "CI-VERSION O", "TP1", "TP2"],
+    completado: "6/6",
   },
   {
     id: 4,
     nombre: "Jorge Ramírez",
     correo: "jorge.ramirez@correo.com",
     registrado: "Sí",
-    evaluaciones: ["TCG", "TP1", "TP2"],
-    completado: "3/6",
+    evaluaciones: ["TCG", "AUTO", "CI-VERSION D", "CI-VERSION O", "TP1", "TP2"],
+    completado: "6/6",
   },
   {
     id: 5,
@@ -107,6 +107,18 @@ const formatCorrelativeId = (value: number) =>
   value.toString().padStart(3, "0");
 
 const isFullyEvaluated = (completado: string) => completado.trim() === "6/6";
+
+const formatEvaluationBadgeLabel = (evaluation: string) => {
+  const normalizedEvaluation = evaluation.toUpperCase().replace(/\s+/g, "");
+
+  if (normalizedEvaluation.startsWith("CI-VERSION")) {
+    const versionCode = normalizedEvaluation.replace("CI-VERSION", "");
+
+    return versionCode ? `CI-${versionCode}` : "CI";
+  }
+
+  return normalizedEvaluation;
+};
 
 export const GrupoCandidatosPage = () => {
   const navigate = useNavigate();
@@ -192,6 +204,13 @@ export const GrupoCandidatosPage = () => {
   const handleOperationalReport = useCallback(
     (userId: number) => {
       navigate(`/admin/grupos/${id}/informe-operativo/${userId}`);
+    },
+    [id, navigate],
+  );
+
+  const handleCandidateProfile = useCallback(
+    (userId: number) => {
+      navigate(`/admin/grupos/${id}/perfil-candidato/${userId}`);
     },
     [id, navigate],
   );
@@ -366,7 +385,18 @@ export const GrupoCandidatosPage = () => {
         key: "evaluaciones",
         header: "EVALUACIONES",
         className: "w-[320px] whitespace-normal leading-snug",
-        cell: (row) => row.evaluaciones.join(", "),
+        cell: (row) => (
+          <div className="flex flex-wrap gap-1.5">
+            {row.evaluaciones.map((evaluation, index) => (
+              <span
+                key={`${evaluation}-${index}`}
+                className="inline-flex items-center rounded-md border border-brand-200 bg-brand-100/50 px-1.5 py-0.5 text-xs font-medium text-brand-700"
+              >
+                [{formatEvaluationBadgeLabel(evaluation)}]
+              </span>
+            ))}
+          </div>
+        ),
       },
       {
         key: "completado",
@@ -382,11 +412,11 @@ export const GrupoCandidatosPage = () => {
           <GroupTableRowAction
             onView={() => handleViewCandidateDetails(row.id)}
             onOperationalReport={() => handleOperationalReport(row.id)}
-            onDiscResult={() => console.log("disc result", row.id)}
+            onCandidateProfile={() => handleCandidateProfile(row.id)}
             onEmail={() => console.log("send email", row.id)}
             viewLabel={`Ver candidato ${row.nombre}`}
             operationalReportLabel={`Ver informe operativo de ${row.nombre}`}
-            discResultLabel={`Ver resultado DISC de ${row.nombre}`}
+            candidateProfileLabel={`Ver perfil de ${row.nombre}`}
             emailLabel={`Enviar email a ${row.nombre}`}
           />
         ),
@@ -394,6 +424,7 @@ export const GrupoCandidatosPage = () => {
     ],
     [
       allVisibleSelected,
+      handleCandidateProfile,
       handleOperationalReport,
       handleToggleAllVisible,
       handleToggleCandidate,
@@ -488,7 +519,7 @@ export const GrupoCandidatosPage = () => {
             role="dialog"
             aria-modal="true"
             aria-label="Detalle del candidato"
-            className="my-4 w-full max-w-2xl"
+            className="my-2 w-full max-w-[96vw] sm:my-4 sm:max-w-3xl lg:max-w-4xl"
           >
             <div className="max-h-[82vh] space-y-3 overflow-y-auto rounded-xl border bg-white p-4 shadow-sm">
               <div className="flex justify-end">
@@ -502,7 +533,7 @@ export const GrupoCandidatosPage = () => {
                 </Button>
               </div>
 
-              <CandidatoModalDetails candidateId={detailsCandidateId} />
+              <InformeOperativo candidateId={detailsCandidateId} compactMode />
             </div>
           </div>
         </div>

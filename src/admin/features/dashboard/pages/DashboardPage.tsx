@@ -22,7 +22,7 @@ import { EvaluacionesPorTipo } from "../components/EvaluacionesPorTipo";
 const stats = [
   {
     title: "Candidatos",
-    value: "24,567",
+    value: "1,000",
     change: "+12.5% from last month",
     changeType: "positive" as const,
     icon: UserRound,
@@ -56,18 +56,18 @@ const stats = [
 
 const performanceData = [
   {
-    label: "Total de Evaluaciones",
-    value: 37414,
+    label: "Total de Candidatos",
+    value: 1000,
     color: "from-violet-500 to-violet-700",
   },
   {
-    label: "Evaluaciones Completadas",
-    value: 24567,
+    label: "Candidatos Evaluados",
+    value: 750,
     color: "from-emerald-500 to-emerald-600",
   },
   {
-    label: "Evaluaciones Pendientes",
-    value: 12847,
+    label: "Candidatos Pendientes",
+    value: 250,
     color: "from-rose-500 to-rose-600",
   },
 ];
@@ -107,7 +107,7 @@ export const DashboardPage = () => {
         <MetricChart />
         <CandidatosChart />
         <EvaluacionesChart
-          title="Evaluaciones por Departamento"
+          title="Total de Evaluaciones por Candidatos"
           data={performanceData}
         />
         <EvaluacionesPorTipo />

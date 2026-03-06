@@ -9,11 +9,11 @@ import {
 } from "@/components/ui/popover";
 import { useEffect, useMemo, useState } from "react";
 import { format } from "date-fns";
-import { CalendarIcon, FileText, FileType, X } from "lucide-react";
+import { CalendarIcon, X } from "lucide-react";
 import type { DateRange } from "react-day-picker";
 
 import type { ReportSection } from "./InformeOperativo";
-import { ChartPorTipo } from "./ChartPorTipo";
+import { ChartBarrasPorTipo } from "./ChartBarrasPorTipo";
 
 type ComportamientoEnTrabajoProps = {
   section?: ReportSection;
@@ -140,6 +140,21 @@ export const ComportamientoEnTrabajo = ({
     [filteredRows, getEvaluationPercentile],
   );
 
+  const selectedMetricChartData = useMemo(
+    () =>
+      filteredRows
+        .filter((row) =>
+          selectedRowKeys.includes(
+            `${row.factor}-${getEvaluationDate(row.seleccion)}`,
+          ),
+        )
+        .map((row) => ({
+          factor: row.factor,
+          percentil: Number(getEvaluationPercentile(row.seleccion)) || 0,
+        })),
+    [filteredRows, getEvaluationDate, getEvaluationPercentile, selectedRowKeys],
+  );
+
   const allFilteredSelected =
     filteredRowKeys.length > 0 &&
     filteredRowKeys.every((rowKey) => selectedRowKeys.includes(rowKey));
@@ -178,31 +193,6 @@ export const ComportamientoEnTrabajo = ({
             <CardTitle className="text-xl font-semibold text-text-strong">
               {section.title}
             </CardTitle>
-
-            <div className="flex items-center gap-2">
-              <Button
-                type="button"
-                size="sm"
-                variant="outline"
-                disabled={!hasAnyRowSelected}
-                className="cursor-pointer border-amber-300 bg-surface-card text-amber-700 hover:bg-amber-600 hover:text-white disabled:cursor-not-allowed disabled:opacity-50"
-                onClick={() => console.log("download pdf", section.title)}
-              >
-                <FileText className="h-4 w-4" />
-                Generar PDF
-              </Button>
-              <Button
-                type="button"
-                size="sm"
-                variant="outline"
-                disabled={!hasAnyRowSelected}
-                className="cursor-pointer border-blue-300 bg-surface-card text-blue-600 hover:bg-blue-600 hover:text-white disabled:cursor-not-allowed disabled:opacity-50"
-                onClick={() => console.log("download word", section.title)}
-              >
-                <FileType className="h-4 w-4" />
-                Generar Word
-              </Button>
-            </div>
           </div>
         </CardHeader>
         <CardContent>
@@ -280,7 +270,12 @@ export const ComportamientoEnTrabajo = ({
               type="button"
               size="sm"
               variant="outline"
-              className="cursor-pointer border-corp-gray-200 bg-surface-card text-corp-gray-600 hover:bg-brand-100 hover:text-brand-500"
+              disabled={!hasAnyRowSelected}
+              className={`transition-all ${
+                hasAnyRowSelected
+                  ? "cursor-pointer border-brand-300 bg-brand-50 text-brand-700 shadow-sm hover:border-brand-600 hover:bg-brand-600 hover:text-white hover:shadow-md"
+                  : "cursor-not-allowed border-corp-gray-200 bg-surface-card text-corp-gray-600 opacity-50"
+              }`}
               onClick={() => setIsMetricModalOpen(true)}
             >
               Detalles de Metrica
@@ -370,8 +365,8 @@ export const ComportamientoEnTrabajo = ({
                 </Button>
               </div>
 
-              <ChartPorTipo
-                data={metricChartData}
+              <ChartBarrasPorTipo
+                data={selectedMetricChartData}
                 sectionTitle={section.title}
               />
             </div>

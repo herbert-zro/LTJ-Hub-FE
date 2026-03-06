@@ -7,6 +7,7 @@ import { GrupoPage } from "./pages/GrupoPage";
 import { GrupoResultadosPage } from "./pages/GrupoResultadosPage";
 import { GroupsCandidatosFormPage } from "./pages/GroupsCandidatosFormPage";
 import { ComparativeChartPage } from "./pages/ComparativeChartPage";
+import { GrupoCandidatoPerfil } from "./pages/GrupoCandidatoPerfil";
 
 export const gruposRoutes: RouteObject[] = [
   {
@@ -26,6 +27,10 @@ export const gruposRoutes: RouteObject[] = [
           {
             path: "informe-operativo/:userId",
             element: <GrupoInformeOperativoPage />,
+          },
+          {
+            path: "perfil-candidato/:userId",
+            element: <GrupoCandidatoPerfil />,
           },
           { path: "comparative-chart", element: <ComparativeChartPage /> },
           { path: "resultados", element: <GrupoResultadosPage /> },
