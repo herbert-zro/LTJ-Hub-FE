@@ -1,4 +1,4 @@
-import { useState, type FC } from "react";
+import { useMemo, useState, type FC } from "react";
 import {
   BarChart,
   Bar,
@@ -10,13 +10,17 @@ import {
   ResponsiveContainer,
 } from "recharts";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
 import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
+import { Calendar } from "@/components/ui/calendar";
+import { Field, FieldLabel } from "@/components/ui/field";
+import { CalendarIcon, X } from "lucide-react";
+import { format } from "date-fns";
+import type { DateRange } from "react-day-picker";
 import { RenderLegend } from "./RenderLegend";
 
 export interface ChartData {
@@ -97,13 +101,46 @@ const LEGEND_LABELS: Record<string, string> = {
   competencia: "COMPETENCIA",
 };
 
+const DAY_KEY_TO_WEEKDAY: Record<string, number> = {
+  lunes: 1,
+  martes: 2,
+  miercoles: 3,
+  jueves: 4,
+  viernes: 5,
+  sabado: 6,
+  domingo: 0,
+};
+
+const normalizeDayKey = (value: string) =>
+  value
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .toLowerCase()
+    .trim();
+
 export const MetricChart: FC<ComparativaChartProps> = ({
   data = DEFAULT_DATA,
 }) => {
-  const [selectedMonth, setSelectedMonth] = useState("2");
+  const [selectedDateRange, setSelectedDateRange] = useState<
+    DateRange | undefined
+  >();
 
   const currentYear = new Date().getFullYear();
-  const referenceDate = new Date(currentYear, Number(selectedMonth), 1);
+  const dateLimits = useMemo(
+    () => ({
+      min: new Date(currentYear, 0, 1),
+      max: new Date(currentYear, 11, 31),
+    }),
+    [currentYear],
+  );
+
+  const referenceDate = selectedDateRange?.from
+    ? new Date(
+        selectedDateRange.from.getFullYear(),
+        selectedDateRange.from.getMonth(),
+        1,
+      )
+    : new Date(currentYear, 2, 1);
   const daysInMonth = new Date(
     referenceDate.getFullYear(),
     referenceDate.getMonth() + 1,
@@ -127,6 +164,67 @@ export const MetricChart: FC<ComparativaChartProps> = ({
     competencia: Math.min(row.competencia, daysInMonth),
   }));
 
+  const normalizedFrom = selectedDateRange?.from
+    ? new Date(
+        selectedDateRange.from.getFullYear(),
+        selectedDateRange.from.getMonth(),
+        selectedDateRange.from.getDate(),
+      ).getTime()
+    : null;
+
+  const normalizedTo = selectedDateRange?.to
+    ? new Date(
+        selectedDateRange.to.getFullYear(),
+        selectedDateRange.to.getMonth(),
+        selectedDateRange.to.getDate(),
+      ).getTime()
+    : normalizedFrom;
+
+  const selectedWeekdays = useMemo(() => {
+    if (normalizedFrom === null && normalizedTo === null) {
+      return null;
+    }
+
+    const fromTime = normalizedFrom ?? normalizedTo;
+    const toTime = normalizedTo ?? normalizedFrom;
+
+    if (fromTime === null || toTime === null) {
+      return null;
+    }
+
+    const startDate = new Date(Math.min(fromTime, toTime));
+    const endDate = new Date(Math.max(fromTime, toTime));
+    const weekdays = new Set<number>();
+
+    for (
+      let cursor = new Date(startDate);
+      cursor.getTime() <= endDate.getTime();
+      cursor = new Date(
+        cursor.getFullYear(),
+        cursor.getMonth(),
+        cursor.getDate() + 1,
+      )
+    ) {
+      weekdays.add(cursor.getDay());
+    }
+
+    return weekdays;
+  }, [normalizedFrom, normalizedTo]);
+
+  const filteredChartData = chartData.filter((row) => {
+    if (selectedWeekdays === null) {
+      return true;
+    }
+
+    const weekday = DAY_KEY_TO_WEEKDAY[normalizeDayKey(row.day)];
+
+    if (weekday === undefined) {
+      return false;
+    }
+
+    return selectedWeekdays.has(weekday);
+  });
+
   return (
     <Card className="chart-card h-full">
       {/* Header */}
@@ -134,27 +232,71 @@ export const MetricChart: FC<ComparativaChartProps> = ({
         <h2 className="chart-title text-center">
           Comparativa de Pruebas Enviadas
         </h2>
-        <div className="chart-controls flex w-full justify-end">
-          <div className="date-input-wrapper w-full md:w-40">
-            <Select value={selectedMonth} onValueChange={setSelectedMonth}>
-              <SelectTrigger className="date-input w-full">
-                <SelectValue placeholder="Selecciona un mes" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="0">Enero</SelectItem>
-                <SelectItem value="1">Febrero</SelectItem>
-                <SelectItem value="2">Marzo</SelectItem>
-                <SelectItem value="3">Abril</SelectItem>
-                <SelectItem value="4">Mayo</SelectItem>
-                <SelectItem value="5">Junio</SelectItem>
-                <SelectItem value="6">Julio</SelectItem>
-                <SelectItem value="7">Agosto</SelectItem>
-                <SelectItem value="8">Septiembre</SelectItem>
-                <SelectItem value="9">Octubre</SelectItem>
-                <SelectItem value="10">Noviembre</SelectItem>
-                <SelectItem value="11">Diciembre</SelectItem>
-              </SelectContent>
-            </Select>
+        <div className="chart-controls flex w-full justify-center">
+          <div className="date-input-wrapper flex w-full justify-center">
+            <Field className="w-full max-w-sm">
+              <FieldLabel htmlFor="date-picker-range" className="sr-only">
+                Evaluaciones realizadas
+              </FieldLabel>
+              <Popover>
+                <div className="relative">
+                  <PopoverTrigger asChild>
+                    <Button
+                      type="button"
+                      variant="outline"
+                      id="date-picker-range"
+                      className="w-full cursor-pointer justify-start border-corp-gray-200 bg-surface-card px-2.5 pr-9 font-normal text-corp-gray-600 hover:bg-brand-100 hover:text-brand-500"
+                    >
+                      <CalendarIcon className="h-4 w-4" />
+                      {selectedDateRange?.from ? (
+                        selectedDateRange.to ? (
+                          <>
+                            {format(selectedDateRange.from, "dd-MM-yyyy")} -{" "}
+                            {format(selectedDateRange.to, "dd-MM-yyyy")}
+                          </>
+                        ) : (
+                          format(selectedDateRange.from, "dd-MM-yyyy")
+                        )
+                      ) : (
+                        <span>Selecciona un rango</span>
+                      )}
+                    </Button>
+                  </PopoverTrigger>
+
+                  {selectedDateRange?.from && (
+                    <Button
+                      type="button"
+                      size="icon"
+                      variant="ghost"
+                      className="absolute top-1/2 right-1 h-7 w-7 -translate-y-1/2 cursor-pointer text-corp-gray-600 hover:bg-brand-100 hover:text-brand-500"
+                      aria-label="Limpiar rango"
+                      onClick={(event) => {
+                        event.stopPropagation();
+                        setSelectedDateRange(undefined);
+                      }}
+                    >
+                      <X className="h-4 w-4" />
+                    </Button>
+                  )}
+                </div>
+
+                <PopoverContent className="w-auto p-0" align="center">
+                  <Calendar
+                    mode="range"
+                    defaultMonth={selectedDateRange?.from ?? dateLimits.min}
+                    selected={selectedDateRange}
+                    onSelect={setSelectedDateRange}
+                    numberOfMonths={2}
+                    startMonth={dateLimits.min}
+                    endMonth={dateLimits.max}
+                    disabled={{
+                      before: dateLimits.min,
+                      after: dateLimits.max,
+                    }}
+                  />
+                </PopoverContent>
+              </Popover>
+            </Field>
           </div>
         </div>
       </CardHeader>
@@ -163,7 +305,7 @@ export const MetricChart: FC<ComparativaChartProps> = ({
       <CardContent className="chart-content pt-2">
         <ResponsiveContainer width="100%" height={260}>
           <BarChart
-            data={chartData}
+            data={filteredChartData}
             margin={{ top: 18, right: 8, left: -10, bottom: 0 }} // Labels
             barCategoryGap="30%"
             barGap={2}

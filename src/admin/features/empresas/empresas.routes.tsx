@@ -8,6 +8,7 @@ import { EmpresaUsuariosFormPage } from "./pages/EmpresaUsuariosFormPage";
 import { EmpresasFactorRangoPage } from "./pages/EmpresasFactorRangoPage";
 import { EmpresasPage } from "./pages/EmpresasPage";
 import { EmpresasRolePage } from "./pages/EmpresasRolePage";
+import { EmpresaRolePermisions } from "./pages/EmpresaRolePermisions";
 
 export const empresasRoutes: RouteObject[] = [
   {
@@ -21,6 +22,7 @@ export const empresasRoutes: RouteObject[] = [
         children: [
           { index: true, element: <EmpresaDetailsPage /> },
           { path: "roles", element: <EmpresasRolePage /> },
+          { path: "roles-permisos", element: <EmpresaRolePermisions /> },
           { path: "roles/form", element: <EmpresaRoleFormPage /> },
           { path: "roles/:roleId/edit", element: <EmpresaRoleFormPage /> },
           { path: "usuarios", element: <EmpresaUsuariosPage /> },
