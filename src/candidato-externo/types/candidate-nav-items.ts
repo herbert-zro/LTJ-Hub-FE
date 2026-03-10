@@ -1,11 +1,4 @@
-import {
-  Briefcase,
-  ClipboardList,
-  FileText,
-  Settings,
-  User,
-  type LucideIcon,
-} from "lucide-react";
+import { Briefcase, ClipboardList, User, type LucideIcon } from "lucide-react";
 
 export interface CandidateNavItem {
   label: string;
@@ -25,14 +18,9 @@ export const candidateNavItems: CandidateNavItem[] = [
     to: "/candidato-externo/procesos",
     icon: Briefcase,
   },
-  /* {
-    label: "Postulaciones",
-    to: "/candidato-externo/postulaciones",
-    icon: FileText,
-  },
   {
     label: "Evaluaciones",
     to: "/candidato-externo/evaluaciones",
     icon: ClipboardList,
-  }, */
+  },
 ];

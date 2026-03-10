@@ -1,4 +1,5 @@
 import { Button } from "@/components/ui/button";
+import { Download, Printer } from "lucide-react";
 
 type ModalVistaCvProps = {
   isOpen: boolean;
@@ -40,14 +41,48 @@ export const ModalVistaCv = ({
             </p>
           </div>
 
-          <Button type="button" variant="outline" onClick={onClose}>
-            Cerrar
-          </Button>
+          <div className="flex items-center gap-2">
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              onClick={() => {
+                const link = document.createElement("a");
+                link.href = pdfUrl;
+                link.download = `CV_${candidatoNombre}.pdf`;
+                link.click();
+              }}
+              title="Descargar CV"
+            >
+              <Download className="h-4 w-4" />
+            </Button>
+
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              onClick={() => {
+                const printWindow = window.open(pdfUrl);
+                if (printWindow) {
+                  printWindow.addEventListener("load", () => {
+                    printWindow.print();
+                  });
+                }
+              }}
+              title="Imprimir CV"
+            >
+              <Printer className="h-4 w-4" />
+            </Button>
+
+            <Button type="button" variant="outline" onClick={onClose}>
+              Cerrar
+            </Button>
+          </div>
         </div>
 
         <div className="min-h-0 flex-1 overflow-hidden rounded-md border border-corp-gray-200 bg-surface-page">
           <object
-            data={pdfUrl}
+            data={`${pdfUrl}#toolbar=0&navpanes=0&scrollbar=0`}
             type="application/pdf"
             className="h-full w-full"
           >

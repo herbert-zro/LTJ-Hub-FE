@@ -12,6 +12,9 @@ import { gruposRoutes } from "@/admin/features/grupos/grupos.routes";
 import { candidatosRoutes } from "@/admin/features/candidatos/candidatos.routes";
 import { CandidatoExternoLayout } from "@/candidato-externo/layout/CandidatoExternoLayout";
 import { candidatoExternoRoutes } from "@/candidato-externo/candidato-externo.routes";
+import { AuthCandidatoLayout } from "@/auth-candidato/layout/AuthCandidatoLayout";
+import { LoginCandidatoPage } from "@/auth-candidato/pages/LoginCandidatoPage";
+import { RegisterPage } from "@/auth-candidato/pages/RegisterPage";
 
 const AuthLayout = lazy(() => import("@/auth/layout/AuthLayout"));
 const AdminLayout = lazy(() => import("@/admin/shell/layout/AdminLayout"));
@@ -22,6 +25,15 @@ export const appRouter = createBrowserRouter([
     path: "/auth",
     element: <AuthLayout />,
     children: [{ index: true, element: <LoginPage /> }],
+  },
+
+  {
+    path: "/auth-candidato",
+    element: <AuthCandidatoLayout />,
+    children: [
+      { index: true, element: <LoginCandidatoPage /> },
+      { path: "registro", element: <RegisterPage /> },
+    ],
   },
 
   // Admin routes
