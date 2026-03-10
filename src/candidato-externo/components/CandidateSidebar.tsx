@@ -1,18 +1,17 @@
-import React from "react";
-import { NavContent } from "./NavContent";
 import { SidebarBrandHeader } from "@/shared/components/shell/SidebarBrandHeader";
+import { CandidateNavContent } from "@/candidato-externo/components/CandidateNavContent";
 
-interface SidebarProps {
+interface CandidateSidebarProps {
   isCollapsed: boolean;
   onToggle: () => void;
 }
 
-export const AdminSidebar: React.FC<SidebarProps> = ({
+export const CandidateSidebar: React.FC<CandidateSidebarProps> = ({
   isCollapsed,
   onToggle,
 }) => {
   return (
-    <div
+    <aside
       className={`hidden md:flex bg-white border-r border-gray-200 transition-all duration-400 ease-in-out ${
         isCollapsed ? "w-18" : "w-57"
       } flex-col`}
@@ -21,10 +20,10 @@ export const AdminSidebar: React.FC<SidebarProps> = ({
         showTitle={!isCollapsed}
         onToggle={onToggle}
         isCollapsed={isCollapsed}
-        title="Admin"
+        title="Portal Candidatos"
       />
 
-      <NavContent collapsed={isCollapsed} />
-    </div>
+      <CandidateNavContent collapsed={isCollapsed} />
+    </aside>
   );
 };

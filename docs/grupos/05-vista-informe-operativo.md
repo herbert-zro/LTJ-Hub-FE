@@ -66,7 +66,8 @@ Payload export sugerido:
    - Virtualizar tablas largas.
    - Memoizar transforms pesados.
 8. Implementar auditoria:
-  - Quien exporto, que formato, que factores y cuando.
+
+- Quien exporto, que formato, que factores y cuando.
 
 ## Buenas practicas clave
 

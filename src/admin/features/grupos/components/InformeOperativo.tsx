@@ -778,9 +778,9 @@ type ReportSectionTab =
 
 type ExportFormat = "pdf" | "word";
 
-type ExportFactorGroup = {
+type ExportEvaluationAttemptGroup = {
   evaluationType: string;
-  factors: string[];
+  attempts: ReportEvaluationAttempt[];
 };
 
 const EVALUATION_SECTION_TAB_MAP: Record<string, ReportSectionTab> = {
@@ -825,8 +825,8 @@ export const InformeOperativo = ({
   const [isAddTestModalOpen, setIsAddTestModalOpen] = useState(false);
   const [isExportModalOpen, setIsExportModalOpen] = useState(false);
   const [exportFormat, setExportFormat] = useState<ExportFormat | null>(null);
-  const [selectedExportFactorKeys, setSelectedExportFactorKeys] = useState<
-    string[]
+  const [selectedExportAttemptIds, setSelectedExportAttemptIds] = useState<
+    number[]
   >([]);
   const [activeSectionTab, setActiveSectionTab] = useState<ReportSectionTab>(
     "capacidad-intelectual",
@@ -995,116 +995,89 @@ export const InformeOperativo = ({
     [user],
   );
 
-  const getFactorsByEvaluationType = (evaluationType: string) => {
-    const targetSectionTab = resolveSectionTabByEvaluationType(evaluationType);
-
-    if (targetSectionTab === "capacidad-intelectual") {
-      return (
-        capacidadIntelectualSection?.factors.map((factor) => factor.factor) ??
-        []
-      );
+  const exportEvaluationAttemptGroups = useMemo(() => {
+    if (!user) {
+      return [] as ExportEvaluationAttemptGroup[];
     }
 
-    if (targetSectionTab === "habilidades-mentales") {
-      return (
-        habilidadesMentalesSection?.factors.map((factor) => factor.factor) ?? []
-      );
-    }
-
-    if (targetSectionTab === "comportamiento-en-trabajo") {
-      return (
-        comportamientoEnTrabajoSection?.factors.map(
-          (factor) => factor.factor,
-        ) ?? []
-      );
-    }
-
-    return personalidadSection?.factors.map((factor) => factor.factor) ?? [];
-  };
-
-  const exportFactorGroups = useMemo(() => {
     return evaluationTypes.map((evaluationType) => ({
       evaluationType,
-      factors: Array.from(new Set(getFactorsByEvaluationType(evaluationType))),
+      attempts: getCandidateEvaluationAttempts(user.id, evaluationType, {
+        sortBy: "createdAt",
+      }).slice(0, 3),
     }));
-  }, [
-    capacidadIntelectualSection,
-    comportamientoEnTrabajoSection,
-    evaluationTypes,
-    habilidadesMentalesSection,
-    personalidadSection,
-  ]);
+  }, [evaluationTypes, user]);
 
-  const allExportFactorKeys = useMemo(
+  const allExportAttemptIds = useMemo(
     () =>
-      exportFactorGroups.flatMap((group) =>
-        group.factors.map((factor) => `${group.evaluationType}::${factor}`),
+      exportEvaluationAttemptGroups.flatMap((group) =>
+        group.attempts.map((attempt) => attempt.id),
       ),
-    [exportFactorGroups],
+    [exportEvaluationAttemptGroups],
   );
 
-  const hasAnyExportFactorSelected = selectedExportFactorKeys.length > 0;
+  const hasAnyExportAttemptSelected = selectedExportAttemptIds.length > 0;
 
   const handleOpenExportModal = (format: ExportFormat) => {
     setExportFormat(format);
-    setSelectedExportFactorKeys([]);
+    setSelectedExportAttemptIds([]);
     setIsExportModalOpen(true);
   };
 
-  const handleToggleExportFactor = (factorKey: string, checked: boolean) => {
-    setSelectedExportFactorKeys((current) => {
+  const handleToggleExportAttempt = (attemptId: number, checked: boolean) => {
+    setSelectedExportAttemptIds((current) => {
       if (checked) {
-        if (current.includes(factorKey)) {
+        if (current.includes(attemptId)) {
           return current;
         }
 
-        return [...current, factorKey];
+        return [...current, attemptId];
       }
 
-      return current.filter((key) => key !== factorKey);
+      return current.filter((id) => id !== attemptId);
     });
   };
 
   const handleToggleExportGroup = (
-    group: ExportFactorGroup,
+    group: ExportEvaluationAttemptGroup,
     checked: boolean,
   ) => {
-    const groupKeys = group.factors.map(
-      (factor) => `${group.evaluationType}::${factor}`,
-    );
+    const groupAttemptIds = group.attempts.map((attempt) => attempt.id);
 
-    setSelectedExportFactorKeys((current) => {
+    setSelectedExportAttemptIds((current) => {
       if (checked) {
-        return Array.from(new Set([...current, ...groupKeys]));
+        return Array.from(new Set([...current, ...groupAttemptIds]));
       }
 
-      return current.filter((key) => !groupKeys.includes(key));
+      return current.filter((id) => !groupAttemptIds.includes(id));
     });
   };
 
-  const handleToggleAllExportFactors = (checked: boolean) => {
-    setSelectedExportFactorKeys(checked ? allExportFactorKeys : []);
+  const handleToggleAllExportAttempts = (checked: boolean) => {
+    setSelectedExportAttemptIds(checked ? allExportAttemptIds : []);
   };
 
   const handleConfirmExport = () => {
-    if (!user || !exportFormat || selectedExportFactorKeys.length === 0) {
+    if (!user || !exportFormat || selectedExportAttemptIds.length === 0) {
       return;
     }
 
-    const selectedFactorsByEvaluationType = exportFactorGroups
+    const selectedAttemptsByEvaluationType = exportEvaluationAttemptGroups
       .map((group) => ({
         evaluationType: group.evaluationType,
-        factors: group.factors.filter((factor) =>
-          selectedExportFactorKeys.includes(
-            `${group.evaluationType}::${factor}`,
-          ),
-        ),
+        attempts: group.attempts
+          .filter((attempt) => selectedExportAttemptIds.includes(attempt.id))
+          .map((attempt) => ({
+            id: attempt.id,
+            generatedAt: attempt.createdAt,
+            finishedAt: getAttemptFinishedAt(attempt),
+          })),
       }))
-      .filter((group) => group.factors.length > 0);
+      .filter((group) => group.attempts.length > 0);
 
     console.log(`generate ${exportFormat}`, {
       userId: user.id,
-      selectedFactorsByEvaluationType,
+      selectedAttemptsByEvaluationType,
     });
 
     setIsExportModalOpen(false);
@@ -1552,16 +1525,17 @@ export const InformeOperativo = ({
           <div
             role="dialog"
             aria-modal="true"
-            aria-label="Seleccionar factores para exportar"
+            aria-label="Seleccionar evaluaciones para exportar"
             className="w-full max-w-4xl rounded-xl border border-corp-gray-200 bg-surface-card p-4 shadow-sm"
           >
             <div className="mb-4 flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
               <div>
                 <h3 className="text-lg font-semibold text-text-strong">
-                  Seleccionar factores para {exportFormat.toUpperCase()}
+                  Seleccionar evaluaciones para {exportFormat.toUpperCase()}
                 </h3>
                 <p className="text-sm text-corp-gray-600">
-                  Marca los factores que deseas incluir en el archivo.
+                  Selecciona uno o varios intentos por fecha de generacion y
+                  finalizacion.
                 </p>
               </div>
 
@@ -1572,14 +1546,14 @@ export const InformeOperativo = ({
                   variant="outline"
                   className="cursor-pointer border-corp-gray-200 bg-surface-card text-corp-gray-600 hover:bg-brand-100 hover:text-brand-500"
                   onClick={() =>
-                    handleToggleAllExportFactors(
-                      selectedExportFactorKeys.length !==
-                        allExportFactorKeys.length,
+                    handleToggleAllExportAttempts(
+                      selectedExportAttemptIds.length !==
+                        allExportAttemptIds.length,
                     )
                   }
                 >
-                  {selectedExportFactorKeys.length ===
-                  allExportFactorKeys.length
+                  {selectedExportAttemptIds.length ===
+                  allExportAttemptIds.length
                     ? "Deseleccionar todos"
                     : "Seleccionar todos"}
                 </Button>
@@ -1596,14 +1570,14 @@ export const InformeOperativo = ({
             </div>
 
             <div className="max-h-[52vh] space-y-3 overflow-y-auto pr-1">
-              {exportFactorGroups.map((group) => {
-                const groupKeys = group.factors.map(
-                  (factor) => `${group.evaluationType}::${factor}`,
+              {exportEvaluationAttemptGroups.map((group) => {
+                const groupAttemptIds = group.attempts.map(
+                  (attempt) => attempt.id,
                 );
                 const allGroupSelected =
-                  groupKeys.length > 0 &&
-                  groupKeys.every((key) =>
-                    selectedExportFactorKeys.includes(key),
+                  groupAttemptIds.length > 0 &&
+                  groupAttemptIds.every((attemptId) =>
+                    selectedExportAttemptIds.includes(attemptId),
                   );
 
                 return (
@@ -1630,34 +1604,41 @@ export const InformeOperativo = ({
                       </Button>
                     </div>
 
-                    {group.factors.length === 0 ? (
+                    {group.attempts.length === 0 ? (
                       <p className="text-sm text-corp-gray-600">
-                        Sin factores disponibles para este tipo de evaluación.
+                        Sin intentos disponibles para este tipo de evaluacion.
                       </p>
                     ) : (
-                      <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
-                        {group.factors.map((factor) => {
-                          const factorKey = `${group.evaluationType}::${factor}`;
+                      <div className="space-y-2">
+                        {group.attempts.map((attempt) => {
+                          const finishedAt = getAttemptFinishedAt(attempt);
 
                           return (
                             <label
-                              key={factorKey}
-                              className="flex cursor-pointer items-center gap-2 rounded-md border border-corp-gray-200 bg-surface-card px-2 py-1.5 text-sm text-text-strong"
+                              key={attempt.id}
+                              className="flex cursor-pointer items-start gap-2 rounded-md border border-corp-gray-200 bg-surface-card px-3 py-2 text-sm text-text-strong"
                             >
                               <input
                                 type="checkbox"
-                                checked={selectedExportFactorKeys.includes(
-                                  factorKey,
+                                checked={selectedExportAttemptIds.includes(
+                                  attempt.id,
                                 )}
                                 onChange={(event) =>
-                                  handleToggleExportFactor(
-                                    factorKey,
+                                  handleToggleExportAttempt(
+                                    attempt.id,
                                     event.target.checked,
                                   )
                                 }
-                                className="h-4 w-4 cursor-pointer accent-brand-500"
+                                className="mt-0.5 h-4 w-4 cursor-pointer accent-brand-500"
                               />
-                              <span>{factor}</span>
+                              <span className="space-y-0.5">
+                                <span className="block text-xs font-semibold text-text-strong">
+                                  Generacion: {attempt.createdAt}
+                                </span>
+                                <span className="block text-xs font-semibold text-text-strong">
+                                  Finalizacion: {finishedAt}
+                                </span>
+                              </span>
                             </label>
                           );
                         })}
@@ -1670,13 +1651,13 @@ export const InformeOperativo = ({
 
             <div className="mt-4 flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
               <p className="text-sm text-corp-gray-600">
-                Factores seleccionados: {selectedExportFactorKeys.length}
+                Evaluaciones seleccionadas: {selectedExportAttemptIds.length}
               </p>
 
               <Button
                 type="button"
                 size="sm"
-                disabled={!hasAnyExportFactorSelected}
+                disabled={!hasAnyExportAttemptSelected}
                 className="cursor-pointer border border-brand-600/40 bg-brand-500 text-white hover:bg-brand-600 disabled:cursor-not-allowed disabled:opacity-50"
                 onClick={handleConfirmExport}
               >

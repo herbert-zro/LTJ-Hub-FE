@@ -10,6 +10,8 @@ import { bitacoraRoutes } from "@/admin/features/bitacora/bitacora.routes";
 import { empresasRoutes } from "@/admin/features/empresas/empresas.routes";
 import { gruposRoutes } from "@/admin/features/grupos/grupos.routes";
 import { candidatosRoutes } from "@/admin/features/candidatos/candidatos.routes";
+import { CandidatoExternoLayout } from "@/candidato-externo/layout/CandidatoExternoLayout";
+import { candidatoExternoRoutes } from "@/candidato-externo/candidato-externo.routes";
 
 const AuthLayout = lazy(() => import("@/auth/layout/AuthLayout"));
 const AdminLayout = lazy(() => import("@/admin/shell/layout/AdminLayout"));
@@ -37,5 +39,12 @@ export const appRouter = createBrowserRouter([
       ...gruposRoutes,
       ...candidatosRoutes,
     ],
+  },
+
+  // Candidato externo
+  {
+    path: "/candidato-externo",
+    element: <CandidatoExternoLayout />,
+    children: [...candidatoExternoRoutes],
   },
 ]);
